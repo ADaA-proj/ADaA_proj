@@ -1,7 +1,7 @@
 #include "shape2D.h"
 #include <vector>
 
-// norm denotes what norm to compute, -1 denotes l_infinity norm
+// norm denotes to what norm to compute, -1 denotes to l_infinity norm
 double Distance(Point p, Line l, int norm = 2);
 
 Polygon ConvexHall(std::vector<Point> point_list);
