@@ -1,77 +1,66 @@
+#include <vector>
+
 long long infty = ~(1ll << 63);
 #define INFINITY *((double *)(&infty))
-
+#define PI 3.1415926535898
 
 class Point
 {
     double x = 0, y = 0;
 
 public:
-    Point(double x_, double y_) : x(x_), y(y_) {}
+    Point(double x_, double y_);
     double getx();
     double gety();
 };
 
 class Line
 {
-    double intercept_x, intercept_y;
-
 public:
-    Line(double intercept_x_, double intercept_y_)
-        : intercept_x(intercept_x_), intercept_y(intercept_y_) {}
-    Line(double k, double b) : intercept_y(b)
-    {
-        if (k == 0)
-            intercept_x = INFINITY;
-        else
-            intercept_x = -b / k;
-    }
-    Line(Point a, Point b)
-    {
-        if ( a.gety() == b.gety())
-            intercept_x = INFINITY,intercept_y = a.gety();
-        else if (a.getx() == b.getx())
-            intercept_x = a.getx(),intercept_y = INFINITY;
-        else {
-            intercept_x = a.getx() - a.gety() * (a.getx() - b.getx())/(a.gety() - b.gety());
-            intercept_y = a.gety() - a.getx() * (a.gety() - b.gety())/(a.getx() - b.getx());
-        }
-    }
-
+    double intercept_x, intercept_y;
+    Line(double intercept_x_, double intercept_y_);
+    Line(Point a, Point b);
 };
 
 class Shape
 {
 public:
-    virtual double Rerimeter();
+    virtual double Perimeter();
     virtual double Area();
 };
 
 class Polygon : public Shape
 {
+protected:
+    std::vector<Point> p_list;
+
 public:
-    virtual double Rerimeter();
+    Polygon(std::vector<Point> p_list_);
+    Polygon(std::vector<Line> l_list_);
+    virtual double Perimeter();
     virtual double Area();
+    void add_point(Point p);
+    void add_line(Line l);
 };
 
 class HalfPlane : public Polygon
 {
 public:
-    double Rerimeter();
+    double Perimeter();
     double Area();
 };
 
 class Triangle : public Polygon
 {
 public:
-    double Rerimeter();
+    double Perimeter();
     double Area();
 };
 
 class Rectangle : public Polygon
 {
 public:
-    double Rerimeter();
+    double Perimeter();
     double Area();
 };
 
@@ -82,29 +71,23 @@ protected:
     double center_x, center_y;
 
 public:
-    virtual double Rerimeter();
-    virtual double Area();
-};
-
-class Elllipse : public ConicSection
-{
-public:
-    virtual double Rerimeter();
-    virtual double Area();
-};
-
-class Circle : public Elllipse
-{
-public:
-    double Rerimeter();
+    double Perimeter();
     double Area();
+};
+
+class Ellipse : public ConicSection
+{
+public:
+};
+
+class Circle : public Ellipse
+{
+public:
 };
 
 class Parabola : public ConicSection
 {
 public:
-    double Rerimeter();
-    double Area();
 };
 
 class Hyperbola : public ConicSection
@@ -112,6 +95,4 @@ class Hyperbola : public ConicSection
     double p;
 
 public:
-    double Rerimeter();
-    double Area();
 };

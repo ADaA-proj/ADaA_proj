@@ -25,3 +25,7 @@ The term project of the Algorithm Design and Analysis by HZX and ZMT.
 - Min/Max，Argmin/Argmax
   - Distance
   - some polyfunction about args
+
+## Problem
+- INFINITY decision problem at goemetry2D.cpp:Distance
+- l_n norm formula at goemetry2D.cpp:Distance
