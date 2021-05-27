@@ -3,8 +3,9 @@
 The term project of the Algorithm Design and Analysis by HZX and ZMT.
 
 ## Class
+- Point
+- Line
 - Shape(2D)
-  - Line
   - Polygon
     - Rectangle
     - triangle
@@ -12,11 +13,11 @@ The term project of the Algorithm Design and Analysis by HZX and ZMT.
     - ...
   - Conic_Section
     - Ellipse
+      - Circle
     - Hyperbola
     - Parabola
-    - Circle
 
-## Built-in FUnction
+## Built-in Function
 - Perimeter
 - Area
 - Intersection
