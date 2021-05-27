@@ -1,12 +1,15 @@
 long long infty = ~(1ll << 63);
 #define INFINITY *((double *)(&infty))
 
+
 class Point
 {
     double x = 0, y = 0;
 
 public:
     Point(double x_, double y_) : x(x_), y(y_) {}
+    double getx();
+    double gety();
 };
 
 class Line
@@ -25,7 +28,16 @@ public:
     }
     Line(Point a, Point b)
     {
+        if ( a.gety() == b.gety())
+            intercept_x = INFINITY,intercept_y = a.gety();
+        else if (a.getx() == b.getx())
+            intercept_x = a.getx(),intercept_y = INFINITY;
+        else {
+            intercept_x = a.getx() - a.gety() * (a.getx() - b.getx())/(a.gety() - b.gety());
+            intercept_y = a.gety() - a.getx() * (a.gety() - b.gety())/(a.getx() - b.getx());
+        }
     }
+
 };
 
 class Shape
