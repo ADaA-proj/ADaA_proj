@@ -29,3 +29,4 @@ The term project of the Algorithm Design and Analysis by HZX and ZMT.
 ## Problem
 - l_n norm formula at goemetry2D.cpp:Distance
 - compute Polygon from Lines
+- about the existence and computablity of k/intercept_x
