@@ -11,25 +11,42 @@ double Point::gety()
     return y;
 }
 
-Line::Line(double intercept_x_, double intercept_y_)
-    : intercept_x(intercept_x_), intercept_y(intercept_y_) {}
+Line::Line(double interceptx_or_k, double intercepty_or_b, bool use_kb = 0)
+{
+    if (use_kb == 0)
+    {
+        intercept_x = interceptx_or_k, intercept_y = intercepty_or_b;
+        k = -intercept_y / intercept_x;
+    }
+    else
+    {
+        k = interceptx_or_k, intercept_y = intercepty_or_b;
+        intercept_x = -intercept_y / k;
+    }
+}
 Line::Line(Point a, Point b)
 {
     if (a.gety() == b.gety())
-        intercept_x = INFINITY, intercept_y = a.gety();
+        intercept_x = GEO_INF, intercept_y = a.gety(), k = 0;
     else if (a.getx() == b.getx())
-        intercept_x = a.getx(), intercept_y = INFINITY;
+        intercept_x = a.getx(), intercept_y = GEO_INF, k = GEO_INF;
     else
     {
         intercept_x = a.getx() - a.gety() * (a.getx() - b.getx()) / (a.gety() - b.gety());
         intercept_y = a.gety() - a.getx() * (a.gety() - b.gety()) / (a.getx() - b.getx());
+        k = -intercept_y / intercept_x;
     }
+}
+
+Polygon::Polygon(std::vector<Point> p_list_)
+{
+    p_list.assign(p_list_.begin(), p_list_.end());
 }
 
 double ConicSection::Perimeter()
 {
     if (e >= 1)
-        return INFINITY;
+        return GEO_INF;
     else if (e == 0)
         return 2 * PI * a;
     else
@@ -50,6 +67,6 @@ double ConicSection::Perimeter()
 double ConicSection::Area()
 {
     if (e >= 1)
-        return INFINITY;
+        return GEO_INF;
     return PI * a * b;
 }

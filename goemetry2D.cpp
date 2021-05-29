@@ -4,16 +4,14 @@
 double Distance(Point p, Line l, int norm = 2)
 {
     double a1, a2, b;
-    if (l.intercept_x == INFINITY) // wrong?
+    if (l.intercept_x == GEO_INF)
     {
-        a1 = 0;
-        a2 = 1;
+        a1 = 0, a2 = 1;
         b = l.intercept_y;
     }
-    else if (l.intercept_y == INFINITY)
+    else if (l.intercept_y == GEO_INF)
     {
-        a1 = 1;
-        a2 = 0;
+        a1 = 1, a2 = 0;
         b = l.intercept_x;
     }
     else

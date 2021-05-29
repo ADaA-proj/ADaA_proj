@@ -1,7 +1,6 @@
 #include <vector>
 
-long long infty = ~(1ll << 63);
-#define INFINITY *((double *)(&infty))
+#define GEO_INF 1.0 / 0.0
 #define PI 3.1415926535898
 
 class Point
@@ -17,8 +16,8 @@ public:
 class Line
 {
 public:
-    double intercept_x, intercept_y;
-    Line(double intercept_x_, double intercept_y_);
+    double intercept_x, intercept_y, k;
+    Line(double interceptx_or_k, double intercepty_or_b, bool use_kb = 0);
     Line(Point a, Point b);
 };
 
