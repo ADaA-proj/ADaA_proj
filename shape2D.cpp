@@ -1,6 +1,11 @@
 #include "shape2D.h"
 #include <cmath>
 
+inline bool eq(double a,double b)
+{
+    return ((a-b)<eps)||((b-a)<eps);
+}
+
 Point::Point(double x_, double y_) : x(x_), y(y_) {}
 double Point::getx()
 {
@@ -26,9 +31,9 @@ Line::Line(double interceptx_or_k, double intercepty_or_b, bool use_kb = 0)
 }
 Line::Line(Point a, Point b)
 {
-    if (a.gety() == b.gety())
+    if (eq(a.gety(), b.gety()))
         intercept_x = GEO_INF, intercept_y = a.gety(), k = 0;
-    else if (a.getx() == b.getx())
+    else if (eq(a.getx(), b.getx()))
         intercept_x = a.getx(), intercept_y = GEO_INF, k = GEO_INF;
     else
     {
