@@ -1,5 +1,4 @@
 #include "shape2D.h"
-#include <cmath>
 
 inline bool eq(double a,double b)
 {
@@ -43,10 +42,80 @@ Line::Line(Point a, Point b)
     }
 }
 
-Polygon::Polygon(std::vector<Point> p_list_)
+Polygon::Polygon(std::vector<Point> &p_list_)//稍微修改，可能传引用比较节省时间
 {
     p_list.assign(p_list_.begin(), p_list_.end());
 }
+
+Point Common_point(Line a,Line b)
+{
+    if(eq(a.k,b.k)==1)return Point(GEO_INF,GEO_INF);
+    double interX,interY;
+    if(eq(a.k,GEO_INF)){
+        interX=a.intercept_x;
+        interY=b(interX);
+    }
+    else if(eq(b.k,GEO_INF)){
+        interX=b.intercept_x;
+        interY=a(interX);
+    }
+    else{
+        interX=-(b.intercept_y-a.intercept_y)/(b.k-a.k);
+        interY=a(interX);
+    }
+    return Point(interX,interY);
+}
+
+Polygon::Polygon(std::vector<Line> &l_list_)//暂时假设他的传输都是按照一定顺序,后面可以通过凸包、半平面交等方法不要求顺序
+{
+    for(int i=1;i<l_list_.size();++i)
+    {
+        p_list.push_back(Common_point(l_list_[i-1],l_list_[i]));
+    }
+    p_list.push_back(Common_point(l_list_[l_list_.size()-1],l_list_[0]));
+}
+
+inline double cross_prod(Point a,Point b)
+{//need checking
+    return b.gety()*a.getx()-b.getx()*a.gety();
+}
+
+inline double sqr(double a){return a*a;}
+
+double distance(Point a,Point b)
+{
+    return std::sqrt(sqr(a.getx()-b.getx())+sqr(a.gety()-b.gety()));
+}
+
+double Polygon::Area()
+{
+    double ans=0;
+    if(p_list.size()<=1){
+        printf("empty polygon!");
+        throw "empty polygon!";
+        return 0;
+    }
+    for(int i=1;i<p_list.size();++i)
+        ans+=cross_prod(p_list[i],p_list[i-1]);
+    ans+=cross_prod(p_list[0],p_list[p_list.size()-1]);
+    return abs(ans);
+}
+
+double Polygon::Perimeter()
+{
+    double ans=0;
+    if(p_list.size()<=1){
+        printf("empty polygon!");
+        throw "empty polygon!";
+        return 0;
+    }
+    for(int i=1;i<p_list.size();++i)
+        ans+=distance(p_list[i],p_list[i-1]);
+    ans+=distance(p_list[0],p_list[p_list.size()-1]);
+    return ans;
+}
+
+
 
 double ConicSection::Perimeter()
 {
@@ -74,4 +143,8 @@ double ConicSection::Area()
     if (e >= 1)
         return GEO_INF;
     return PI * a * b;
+}
+int main()
+{
+
 }
