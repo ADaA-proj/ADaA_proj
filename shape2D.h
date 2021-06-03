@@ -1,9 +1,12 @@
 #include <vector>
+#include <cstdio>
+#include <cmath>
 
 #define GEO_INF 1.0 / 0.0
 #define PI 3.1415926535898
+const double eps=1e-6;
 
-class Point
+class Point//also vector
 {
     double x = 0, y = 0;
 
@@ -17,8 +20,12 @@ class Line
 {
 public:
     double intercept_x, intercept_y, k;
-    Line(double interceptx_or_k, double intercepty_or_b, bool use_kb = 0);
+    Line(double interceptx_or_k, double intercepty_or_b, bool use_kb);//这里的默认参数和实现的时候的默认参数貌似不能同时使用
     Line(Point a, Point b);
+    double operator ()(const double &x)
+    {
+        return k*x+intercept_y;
+    }
 };
 
 class Shape
@@ -34,8 +41,8 @@ protected:
     std::vector<Point> p_list;
 
 public:
-    Polygon(std::vector<Point> p_list_);
-    Polygon(std::vector<Line> l_list_);
+    Polygon(std::vector<Point> &p_list_);
+    Polygon(std::vector<Line>  &l_list_);
     virtual double Perimeter();
     virtual double Area();
     void add_point(Point p);
