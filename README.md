@@ -21,7 +21,8 @@ The term project of the Algorithm Design and Analysis by HZX and ZMT.
 - [X] Perimeter
 - [X] Area
 - [ ] Intersection
-- [ ] Convexhall
+- [X] Convexhall
+- [ ] Merge
 - [ ] Min/Max，Argmin/Argmax
   - [ ] Distance
   - [ ] some polyfunction about args

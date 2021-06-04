@@ -7,7 +7,8 @@
 double Distance(Point p, Line l, int norm = 2);
 double Distance(Point p, Point q);
 
-Polygon ConvexHall(std::vector<Point> point_list);
-
-Polygon InterSection(std::vector<Polygon> polygon_list);
 Point Common_point(Line a, Line b);
+
+Polygon ConvexHall(std::vector<Point> point_list);
+Polygon InterSection(const Polygon &a, const Polygon &b);
+Polygon Merge(const Polygon &a, const Polygon &b);
