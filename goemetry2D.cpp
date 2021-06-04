@@ -33,7 +33,8 @@ double Distance(Point p, Line l, int norm = 2)
 }
 double Distance(Point p, Point q)
 {
-    return (p - q).norm();
+    Point tmp = p - q;
+    return sqrt(tmp * tmp);
 }
 
 Point Common_point(Line a, Line b)

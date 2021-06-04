@@ -15,7 +15,7 @@ public:
     Point operator+(Point q);
     Point operator-(Point q);
     Point operator*(double k);
-    double dot(Point q);
+    double operator*(Point q);
     double cross(Point q);
     double norm(int n = 2);
 

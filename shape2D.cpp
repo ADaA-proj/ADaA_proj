@@ -19,7 +19,7 @@ Point Point::operator*(double k)
 {
     return Point(k * x, k * y);
 }
-double Point::dot(Point q)
+double Point::operator*(Point q)
 {
     return x * q.x + y * q.y;
 }
@@ -112,6 +112,11 @@ Triangle::Triangle(const std::vector<Point> &p_list_) : Polygon(p_list_)
     if (p_list_.size() != 3)
         exit(1); // 错误处理咋办
     // 能不能做得再robust一点
+}
+Point Triangle::centroid()
+{
+    Point a = p_list[0], b = p_list[1], c = p_list[2];
+    return Point((a.x + b.x + c.x) / 3, (a.y + b.y + c.y) / 3);
 }
 
 double ConicSection::Perimeter()
