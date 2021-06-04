@@ -1,21 +1,41 @@
 #include "shape2D.h"
 
-inline bool eq(double a,double b)
+static const double eps = 1e-6;
+static inline bool eq(double a, double b)
 {
-    return ((a-b)<eps)||((b-a)<eps);
+    return ((a - b) < eps) || ((b - a) < eps);
 }
 
 Point::Point(double x_, double y_) : x(x_), y(y_) {}
-double Point::getx()
+Point Point::operator+(Point q)
 {
-    return x;
+    return Point(x + q.x, y + q.y);
 }
-double Point::gety()
+Point Point::operator-(Point q)
 {
-    return y;
+    return Point(x - q.x, y - q.y);
+}
+Point Point::operator*(double k)
+{
+    return Point(k * x, k * y);
+}
+double Point::dot(Point q)
+{
+    return x * q.x + y * q.y;
+}
+double Point::cross(Point q)
+{
+    return x * q.y - y * q.x;
+}
+double Point::norm(int n)
+{
+    if (n % 2 == 1)
+        return pow(pow(abs(x), n) + pow(abs(y), n), 1.0 / n);
+    else
+        return pow(pow(x, n) + pow(y, n), 1.0 / n);
 }
 
-Line::Line(double interceptx_or_k, double intercepty_or_b, bool use_kb = 0)
+Line::Line(double interceptx_or_k, double intercepty_or_b, bool use_kb)
 {
     if (use_kb == 0)
     {
@@ -30,92 +50,69 @@ Line::Line(double interceptx_or_k, double intercepty_or_b, bool use_kb = 0)
 }
 Line::Line(Point a, Point b)
 {
-    if (eq(a.gety(), b.gety()))
-        intercept_x = GEO_INF, intercept_y = a.gety(), k = 0;
-    else if (eq(a.getx(), b.getx()))
-        intercept_x = a.getx(), intercept_y = GEO_INF, k = GEO_INF;
+    if (eq(a.y, b.y))
+        intercept_x = GEO_INF, intercept_y = a.y, k = 0;
+    else if (eq(a.x, b.x))
+        intercept_x = a.x, intercept_y = GEO_INF, k = GEO_INF;
     else
     {
-        intercept_x = a.getx() - a.gety() * (a.getx() - b.getx()) / (a.gety() - b.gety());
-        intercept_y = a.gety() - a.getx() * (a.gety() - b.gety()) / (a.getx() - b.getx());
+        intercept_x = a.x - a.y * (a.x - b.x) / (a.y - b.y);
+        intercept_y = a.y - a.x * (a.y - b.y) / (a.x - b.x);
         k = -intercept_y / intercept_x;
     }
 }
+double Line::operator()(const double &x)
+{
+    return k * x + intercept_y;
+}
 
-Polygon::Polygon(std::vector<Point> &p_list_)//稍微修改，可能传引用比较节省时间
+Polygon::Polygon(const std::vector<Point> &p_list_) // const allows Rvalue references
 {
     p_list.assign(p_list_.begin(), p_list_.end());
 }
-
-Point Common_point(Line a,Line b)
+Polygon::Polygon(const std::vector<Line> &l_list_) // 暂时假设他的传输都是按照一定顺序,后面可以通过凸包、半平面交等方法不要求顺序
 {
-    if(eq(a.k,b.k)==1)return Point(GEO_INF,GEO_INF);
-    double interX,interY;
-    if(eq(a.k,GEO_INF)){
-        interX=a.intercept_x;
-        interY=b(interX);
-    }
-    else if(eq(b.k,GEO_INF)){
-        interX=b.intercept_x;
-        interY=a(interX);
-    }
-    else{
-        interX=-(b.intercept_y-a.intercept_y)/(b.k-a.k);
-        interY=a(interX);
-    }
-    return Point(interX,interY);
-}
-
-Polygon::Polygon(std::vector<Line> &l_list_)//暂时假设他的传输都是按照一定顺序,后面可以通过凸包、半平面交等方法不要求顺序
-{
-    for(int i=1;i<l_list_.size();++i)
+    for (int i = 1; i < l_list_.size(); ++i)
     {
-        p_list.push_back(Common_point(l_list_[i-1],l_list_[i]));
+        p_list.push_back(Common_point(l_list_[i - 1], l_list_[i]));
     }
-    p_list.push_back(Common_point(l_list_[l_list_.size()-1],l_list_[0]));
+    p_list.push_back(Common_point(l_list_[l_list_.size() - 1], l_list_[0]));
 }
-
-inline double cross_prod(Point a,Point b)
-{//need checking
-    return b.gety()*a.getx()-b.getx()*a.gety();
-}
-
-inline double sqr(double a){return a*a;}
-
-double distance(Point a,Point b)
-{
-    return std::sqrt(sqr(a.getx()-b.getx())+sqr(a.gety()-b.gety()));
-}
-
 double Polygon::Area()
 {
-    double ans=0;
-    if(p_list.size()<=1){
+    double ans = 0;
+    if (p_list.size() <= 1)
+    {
         printf("empty polygon!");
         throw "empty polygon!";
         return 0;
     }
-    for(int i=1;i<p_list.size();++i)
-        ans+=cross_prod(p_list[i],p_list[i-1]);
-    ans+=cross_prod(p_list[0],p_list[p_list.size()-1]);
+    for (int i = 1; i < p_list.size(); ++i)
+        ans += p_list[i].cross(p_list[i - 1]);
+    ans += p_list[0].cross(p_list[p_list.size() - 1]);
     return abs(ans);
 }
-
 double Polygon::Perimeter()
 {
-    double ans=0;
-    if(p_list.size()<=1){
+    double ans = 0;
+    if (p_list.size() <= 1)
+    {
         printf("empty polygon!");
         throw "empty polygon!";
         return 0;
     }
-    for(int i=1;i<p_list.size();++i)
-        ans+=distance(p_list[i],p_list[i-1]);
-    ans+=distance(p_list[0],p_list[p_list.size()-1]);
+    for (int i = 1; i < p_list.size(); ++i)
+        ans += Distance(p_list[i], p_list[i - 1]);
+    ans += Distance(p_list[0], p_list[p_list.size() - 1]);
     return ans;
 }
 
-
+Triangle::Triangle(const std::vector<Point> &p_list_) : Polygon(p_list_)
+{
+    if (p_list_.size() != 3)
+        exit(1); // 错误处理咋办
+    // 能不能做得再robust一点
+}
 
 double ConicSection::Perimeter()
 {
@@ -143,8 +140,4 @@ double ConicSection::Area()
     if (e >= 1)
         return GEO_INF;
     return PI * a * b;
-}
-int main()
-{
-
 }

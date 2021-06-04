@@ -1,31 +1,35 @@
+#pragma once
+
 #include <vector>
 #include <cstdio>
 #include <cmath>
+#include "geometry2D.h"
 
 #define GEO_INF 1.0 / 0.0
 #define PI 3.1415926535898
-const double eps=1e-6;
 
-class Point//also vector
+class Point //also vector
 {
-    double x = 0, y = 0;
-
 public:
     Point(double x_, double y_);
-    double getx();
-    double gety();
+    Point operator+(Point q);
+    Point operator-(Point q);
+    Point operator*(double k);
+    double dot(Point q);
+    double cross(Point q);
+    double norm(int n = 2);
+
+    double x = 0, y = 0;
 };
 
 class Line
 {
 public:
-    double intercept_x, intercept_y, k;
-    Line(double interceptx_or_k, double intercepty_or_b, bool use_kb);//这里的默认参数和实现的时候的默认参数貌似不能同时使用
+    Line(double interceptx_or_k, double intercepty_or_b, bool use_kb = 0); //这里的默认参数和实现的时候的默认参数貌似不能同时使用
     Line(Point a, Point b);
-    double operator ()(const double &x)
-    {
-        return k*x+intercept_y;
-    }
+    double operator()(const double &x);
+
+    double intercept_x, intercept_y, k;
 };
 
 class Shape
@@ -41,8 +45,8 @@ protected:
     std::vector<Point> p_list;
 
 public:
-    Polygon(std::vector<Point> &p_list_);
-    Polygon(std::vector<Line>  &l_list_);
+    Polygon(const std::vector<Point> &p_list_);
+    Polygon(const std::vector<Line> &l_list_);
     virtual double Perimeter();
     virtual double Area();
     void add_point(Point p);
@@ -59,8 +63,11 @@ public:
 class Triangle : public Polygon
 {
 public:
+    Triangle(const std::vector<Point> &p_list_);
     double Perimeter();
     double Area();
+    Point centroid();    // 重心
+    Point orthocenter(); // 垂心
 };
 
 class Rectangle : public Polygon

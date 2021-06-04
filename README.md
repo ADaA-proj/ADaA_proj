@@ -18,15 +18,15 @@ The term project of the Algorithm Design and Analysis by HZX and ZMT.
     - Parabola
 
 ## Built-in Function
-- Perimeter
-- Area
-- Intersection
-- Convexhall
-- Min/Max，Argmin/Argmax
-  - Distance
-  - some polyfunction about args
+- [X] Perimeter
+- [X] Area
+- [ ] Intersection
+- [ ] Convexhall
+- [ ] Min/Max，Argmin/Argmax
+  - [ ] Distance
+  - [ ] some polyfunction about args
 
 ## Problem
 - l_n norm formula at goemetry2D.cpp:Distance
 - compute Polygon from Lines
-- about the existence and computablity of k/intercept_x
+- error handler? shape2D.cpp:Triangle
