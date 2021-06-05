@@ -18,6 +18,7 @@ public:
     double operator*(Point q);
     double cross(Point q);
     double norm(int n = 2);
+    double degree(Point q);//两点表示向量的有向角度
 
     double x = 0, y = 0;
 };
@@ -51,6 +52,7 @@ public:
     virtual double Area();
     void add_point(Point p);
     void add_line(Line l);
+    bool in_Poly(Point a);
 };
 
 class HalfPlane : public Polygon
