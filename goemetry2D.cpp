@@ -8,7 +8,7 @@ static inline bool eq(double a, double b)
     return ((a - b) < eps) || ((b - a) < eps);
 }
 
-Polygon ConvexHall(std::vector<Point> point_list) // Graham scan O(nlogn)
+Polygon ConvexHall(std::vector<Point> &point_list) // Graham scan O(nlogn)//用传输polygon得引用的方法来避免传输vector？
 {
     size_t len = point_list.size();
     if (len < 3)
@@ -63,14 +63,29 @@ double Distance(Point p, Line l, int norm = 2)
         b = 1;
     }
     double dis = a1 * p.x + a2 * p.y - b;
-    if (norm = -1)
+    if(norm==2){
+        dis=dis/Point(a1,a2).norm(2);
+        return dis;
+    }
+    else if (norm = -1)
     {
     }
 }
+
 double Distance(Point p, Point q)
 {
     Point tmp = p - q;
     return sqrt(tmp * tmp);
+}
+
+double Distance(Point p,Point a,Point b)//p到ab线段距离
+{
+    if(abs((b-a).degree(p-a))<=(PI/2.0+eps)&&abs((a-b).degree(p-b))<=PI/2.0+eps){
+        return Distance(p,Line(a,b));
+    }
+    else{
+        return min(Distance(a,p),Distance(b,p));
+    }
 }
 
 Point Common_point(Line a, Line b)
