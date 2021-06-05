@@ -3,7 +3,6 @@
 #include <vector>
 #include <cstdio>
 #include <cmath>
-#include "geometry2D.h"
 
 #define GEO_INF 1.0 / 0.0
 #define PI 3.1415926535898
@@ -15,13 +14,13 @@ public:
     Point operator+(Point q);
     Point operator-(Point q);
     Point operator*(double k);
+    friend Point operator*(double k, Point p);
     double operator*(Point q);
-    double cross(Point q);
     double norm(int n = 2);
-    double degree(Point q);//两点表示向量的有向角度
 
     double x = 0, y = 0;
 };
+typedef Point Vec;
 
 class Line
 {
@@ -29,15 +28,27 @@ public:
     Line(double interceptx_or_k, double intercepty_or_b, bool use_kb = 0); //这里的默认参数和实现的时候的默认参数貌似不能同时使用
     Line(Point a, Point b);
     double operator()(const double &x);
+    double operator[](const double &y);
 
     double intercept_x, intercept_y, k;
 };
 
-class Shape
+class LineSegment : public Line
 {
 public:
-    virtual double Perimeter();
-    virtual double Area();
+    LineSegment(Point a, Point b);
+    Point left_endpoint();
+    Point right_endpoint();
+    Point upper_endpoint();
+    Point lower_endpoint();
+
+private:
+    double min_x, max_x;
+    double min_y, max_y;
+};
+
+class Shape
+{
 };
 
 class Polygon : public Shape
@@ -48,35 +59,35 @@ protected:
 public:
     Polygon(const std::vector<Point> &p_list_);
     Polygon(const std::vector<Line> &l_list_);
-    virtual double Perimeter();
-    virtual double Area();
-    void add_point(Point p);
-    void add_line(Line l);
+    double Perimeter();
+    double Area();
+    //void add_point(Point p);
+    //void add_line(Line l);
     bool in_Poly(Point a);
 };
 
 class HalfPlane : public Polygon
 {
 public:
-    double Perimeter();
-    double Area();
+    //double Perimeter();
+    //double Area();
 };
 
 class Triangle : public Polygon
 {
 public:
     Triangle(const std::vector<Point> &p_list_);
-    double Perimeter();
-    double Area();
-    Point centroid();    // 重心
-    Point orthocenter(); // 垂心
+    //double Perimeter();
+    //double Area();
+    Point centroid(); // 重心
+    //Point orthocenter(); // 垂心
 };
 
 class Rectangle : public Polygon
 {
 public:
-    double Perimeter();
-    double Area();
+    //double Perimeter();
+    //double Area();
 };
 
 class ConicSection : public Shape

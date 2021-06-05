@@ -8,6 +8,16 @@ static inline bool eq(double a, double b)
     return ((a - b) < eps) || ((b - a) < eps);
 }
 
+double cross(Point p, Point q)
+{
+    return p.x * q.y - p.y * q.x;
+}
+
+double degree(Point p, Point q)
+{
+    return atan2(p.y, p.x) - atan2(q.y, q.x);
+}
+
 Polygon ConvexHall(std::vector<Point> &point_list) // Graham scan O(nlogn)//用传输polygon得引用的方法来避免传输vector？
 {
     size_t len = point_list.size();
@@ -31,7 +41,7 @@ Polygon ConvexHall(std::vector<Point> &point_list) // Graham scan O(nlogn)//用�
     size_t top = 1;
     for (size_t i = 2; i < len; ++i)
     {
-        while ((out[top] - out[top - 1]).cross(point_list[i] - out[top]) < 0)
+        while (cross(out[top] - out[top - 1], point_list[i] - out[top]) < 0)
         {
             out.pop_back();
             --top;
@@ -43,7 +53,7 @@ Polygon ConvexHall(std::vector<Point> &point_list) // Graham scan O(nlogn)//用�
     return Polygon(out);
 }
 
-double Distance(Point p, Line l, int norm = 2)
+double Distance(Point p, Line l, int norm)
 {
     double a1, a2, b;
     if (l.intercept_x == GEO_INF)
@@ -63,11 +73,12 @@ double Distance(Point p, Line l, int norm = 2)
         b = 1;
     }
     double dis = a1 * p.x + a2 * p.y - b;
-    if(norm==2){
-        dis=dis/Point(a1,a2).norm(2);
+    if (norm == 2)
+    {
+        dis = dis / Point(a1, a2).norm(2);
         return dis;
     }
-    else if (norm = -1)
+    else if (norm == -1)
     {
     }
 }
@@ -78,13 +89,16 @@ double Distance(Point p, Point q)
     return sqrt(tmp * tmp);
 }
 
-double Distance(Point p,Point a,Point b)//p到ab线段距离
+double Distance(Point p, LineSegment l) //p到ab线段距离
 {
-    if(abs((b-a).degree(p-a))<=(PI/2.0+eps)&&abs((a-b).degree(p-b))<=PI/2.0+eps){
-        return Distance(p,Line(a,b));
+    Point a = l.left_endpoint(), b = l.right_endpoint();
+    if (abs(degree(b - a, p - a)) <= (PI / 2.0 + eps) && abs(degree(a - b, p - b)) <= PI / 2.0 + eps)
+    {
+        return Distance(p, Line(a, b));
     }
-    else{
-        return min(Distance(a,p),Distance(b,p));
+    else
+    {
+        return std::min(Distance(a, p), Distance(b, p));
     }
 }
 

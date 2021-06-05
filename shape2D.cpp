@@ -1,4 +1,5 @@
 #include "shape2D.h"
+#include "geometry2D.h"
 
 static const double eps = 1e-6;
 static inline bool eq(double a, double b)
@@ -19,13 +20,13 @@ Point Point::operator*(double k)
 {
     return Point(k * x, k * y);
 }
+Point operator*(double k, Point p)
+{
+    return p * k;
+}
 double Point::operator*(Point q)
 {
     return x * q.x + y * q.y;
-}
-double Point::cross(Point q)
-{
-    return x * q.y - y * q.x;
 }
 double Point::norm(int n)
 {
@@ -65,6 +66,40 @@ double Line::operator()(const double &x)
 {
     return k * x + intercept_y;
 }
+double Line::operator[](const double &y)
+{
+    if (k == GEO_INF)
+        return intercept_x;
+    return (y - intercept_y) / k;
+}
+
+LineSegment::LineSegment(Point a, Point b) : Line(a, b)
+{
+    if (a.x > b.x)
+        max_x = a.x, min_x = b.x;
+    else
+        max_x = b.x, min_x = a.x;
+    if (a.y > b.y)
+        max_y = a.y, min_y = b.y;
+    else
+        max_y = b.y, min_y = a.y;
+}
+Point LineSegment::left_endpoint()
+{
+    return Point(min_x, operator()(min_x));
+}
+Point LineSegment::right_endpoint()
+{
+    return Point(max_x, operator()(max_x));
+}
+Point LineSegment::upper_endpoint()
+{
+    return Point(operator[](max_y), max_y);
+}
+Point LineSegment::lower_endpoint()
+{
+    return Point(operator[](min_y), min_y);
+}
 
 Polygon::Polygon(const std::vector<Point> &p_list_) // const allows Rvalue references
 {
@@ -72,7 +107,8 @@ Polygon::Polygon(const std::vector<Point> &p_list_) // const allows Rvalue refer
 }
 Polygon::Polygon(const std::vector<Line> &l_list_) // 暂时假设他的传输都是按照一定顺序,后面可以通过凸包、半平面交等方法不要求顺序
 {
-    for (int i = 1; i < l_list_.size(); ++i)
+    size_t len = p_list.size();
+    for (size_t i = 1; i < len; ++i)
     {
         p_list.push_back(Common_point(l_list_[i - 1], l_list_[i]));
     }
@@ -87,9 +123,10 @@ double Polygon::Area()
         throw "empty polygon!";
         return 0;
     }
-    for (int i = 1; i < p_list.size(); ++i)
-        ans += p_list[i].cross(p_list[i - 1]);
-    ans += p_list[0].cross(p_list[p_list.size() - 1]);
+    size_t len = p_list.size();
+    for (size_t i = 1; i < len; ++i)
+        ans += cross(p_list[i], p_list[i - 1]);
+    ans += cross(p_list[0], p_list[p_list.size() - 1]);
     return abs(ans);
 }
 double Polygon::Perimeter()
@@ -101,18 +138,13 @@ double Polygon::Perimeter()
         throw "empty polygon!";
         return 0;
     }
-    for (int i = 1; i < p_list.size(); ++i)
+    size_t len = p_list.size();
+    for (size_t i = 1; i < len; ++i)
         ans += Distance(p_list[i], p_list[i - 1]);
     ans += Distance(p_list[0], p_list[p_list.size() - 1]);
     return ans;
 }
-
-double Point::degree(Point a)
-{
-    return atan2(y,x)-atan2(a.y,a.x);
-}
-
-bool Polygon::in_Poly(Point a)//用atan2实现？用向量乘法实现？（暂定前者）
+bool Polygon::in_Poly(Point a) //用atan2实现？用向量乘法实现？（暂定前者）
 {
     double ans = 0;
     if (p_list.size() <= 1)
@@ -121,17 +153,18 @@ bool Polygon::in_Poly(Point a)//用atan2实现？用向量乘法实现？（暂�
         throw "empty polygon!";
         return 0;
     }
-    for(size_t i=1;i<p_list.size();++i){
-        ans += p_list[i].degree(p_list[i-1]);
+    size_t len = p_list.size();
+    for (size_t i = 1; i < len; ++i)
+    {
+        ans += degree(p_list[i], p_list[i - 1]);
     }
-    ans += p_list[0].degree(p_list[p_list.size()-1]);
-    return abs(ans/(2.0*PI))>eps;
+    ans += degree(p_list[0], p_list[p_list.size() - 1]);
+    return abs(ans / (2.0 * PI)) > eps;
 }
 
 Triangle::Triangle(const std::vector<Point> &p_list_) : Polygon(p_list_)
 {
-    if (p_list_.size() != 3)
-        exit(1); // 错误处理咋办
+    // 错误处理咋办
     // 能不能做得再robust一点
 }
 Point Triangle::centroid()
