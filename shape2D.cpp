@@ -107,6 +107,27 @@ double Polygon::Perimeter()
     return ans;
 }
 
+double Point::degree(Point a)
+{
+    return atan2(y,x)-atan2(a.y,a.x);
+}
+
+bool Polygon::in_Poly(Point a)//用atan2实现？用向量乘法实现？（暂定前者）
+{
+    double ans = 0;
+    if (p_list.size() <= 1)
+    {
+        printf("empty polygon!");
+        throw "empty polygon!";
+        return 0;
+    }
+    for(size_t i=1;i<p_list.size();++i){
+        ans += p_list[i].degree(p_list[i-1]);
+    }
+    ans += p_list[0].degree(p_list[p_list.size()-1]);
+    return abs(ans/(2.0*PI))>eps;
+}
+
 Triangle::Triangle(const std::vector<Point> &p_list_) : Polygon(p_list_)
 {
     if (p_list_.size() != 3)
