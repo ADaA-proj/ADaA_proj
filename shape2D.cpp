@@ -73,6 +73,15 @@ double Line::operator[](const double &y)
     return (y - intercept_y) / k;
 }
 
+HalfPlane::HalfPlane(double x_,double y_,Point anch_):Point(x_,y_),anch(anch_)
+{
+    degree=atan2(y_,x_);
+}
+bool HalfPlane::operator<(HalfPlane b)
+{
+    return (degree<b.degree)||(eq(degree,b.degree)&&cross(Point(*this),b.anch-anch)>=0);
+}
+
 LineSegment::LineSegment(Point a, Point b) : Line(a, b)
 {
     if (a.x > b.x)
