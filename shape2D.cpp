@@ -1,5 +1,6 @@
 #include "shape2D.h"
 #include "geometry2D.h"
+#include <algorithm>
 
 static const double eps = 1e-6;
 static inline bool eq(double a, double b)
@@ -265,6 +266,26 @@ bool Polygon::in_Poly(Point a) const //用atan2实现？用向量乘法实现？
     }
     ans += degree(p_list[0], p_list[p_list.size() - 1]);
     return abs(ans / (2.0 * PI)) > eps;
+}
+
+Point Polygon::operator()(int k)const
+{
+    return p_list[k];
+}
+
+size_t Polygon::size()const
+{
+    return p_list.size();
+}
+
+double Polygon::MinDis(Point p)const
+{
+    if(in_Poly(p))return 0.0;
+    double ans=GEO_INF;
+    for(size_t i=1;i<p_list.size();++i)
+        ans=std::min(ans,Distance(p,LineSegment(p_list[i-1],p_list[i])));
+    ans=std::min(ans,Distance(p,LineSegment(p_list[0],p_list[p_list.size()-1])));
+    return ans;
 }
 
 Triangle::Triangle(const std::vector<Point> &p_list_)
