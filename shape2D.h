@@ -66,13 +66,13 @@ public:
     bool in_Poly(Point a);
 };
 
-class HalfPlane : public Vec//public Polygon 先用向量右侧表示要求的半平面
+class HalfPlane : public Vec//public Polygon 先用向量左侧表示要求的半平面
 {
 public:
     double degree;Point anch;
     HalfPlane(double x_,double y_,Point anch_);
     bool operator<(HalfPlane b);
-
+    operator Line();//找到向量所表示的直线形式，但是该过程当中会损失半平面对应左右侧的关系
     //double Perimeter();
     //double Area();
 };
