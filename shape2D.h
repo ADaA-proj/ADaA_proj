@@ -71,8 +71,6 @@ public:
     HalfPlane(const Line &l, int direction);
     HalfPlane(const Line &l, Point p);
     bool is_in(Point p) const;
-    //double Perimeter();
-    //double Area();
 
 private:
     Vec normal;

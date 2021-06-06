@@ -182,5 +182,5 @@ Polygon HalfPlaneIntersection(std::vector<HalfPlane> Line_list) //未完成检�
     {
         throw "error!";
     }
-    return Polygon(deq);
+    return Polygon(std::vector<Line>(deq.begin(), deq.end()));
 }
