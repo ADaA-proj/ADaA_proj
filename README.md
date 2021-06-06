@@ -7,10 +7,10 @@ The term project of the Algorithm Design and Analysis by HZX and ZMT.
 - Line
   - LineSegment
 - Shape(2D)
+  - half plane
   - Polygon
     - Rectangle
     - triangle
-    - half plane
     - ...
   - Conic_Section
     - Ellipse

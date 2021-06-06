@@ -12,15 +12,15 @@ static inline double abs(double x)
 }
 
 Point::Point(double x_, double y_) : x(x_), y(y_) {}
-Point Point::operator+(Point q)
+Point Point::operator+(Point q) const
 {
     return Point(x + q.x, y + q.y);
 }
-Point Point::operator-(Point q)
+Point Point::operator-(Point q) const
 {
     return Point(x - q.x, y - q.y);
 }
-Point Point::operator*(double k)
+Point Point::operator*(double k) const
 {
     return Point(k * x, k * y);
 }
@@ -28,18 +28,29 @@ Point operator*(double k, Point p)
 {
     return p * k;
 }
-double Point::operator*(Point q)
+double Point::operator*(Point q) const
 {
     return x * q.x + y * q.y;
 }
-double Point::norm(int n)
+double Point::norm(int n) const
 {
     if (n % 2 == 1)
         return pow(pow(abs(x), n) + pow(abs(y), n), 1.0 / n);
     else
         return pow(pow(x, n) + pow(y, n), 1.0 / n);
 }
+Point &Point::normalization()
+{
+    double l = norm();
+    x /= l, y /= l;
+    return *this;
+}
 
+Line::Line()
+{
+    tangential = Vec(1, 1).normalization();
+    anch = Point(0, 0);
+}
 Line::Line(double interceptx_or_k, double intercepty_or_b, bool use_kb)
 {
     if (use_kb == 0)
@@ -52,29 +63,59 @@ Line::Line(double interceptx_or_k, double intercepty_or_b, bool use_kb)
         k = interceptx_or_k, intercept_y = intercepty_or_b;
         intercept_x = -intercept_y / k;
     }
+    if (k == 0)
+    {
+        anch = Point(0, intercept_y);
+        tangential = Vec(1, 0);
+    }
+    else if (k == GEO_INF)
+    {
+        anch = Point(intercept_x, 0);
+        tangential = Vec(0, 1);
+    }
+    else
+    {
+        anch = Point(0, intercept_y);
+        tangential = Vec(1, k).normalization();
+    }
 }
-Line::Line(Point a, Point b)
+Line::Line(Point a, Point b) : anch(a)
 {
     if (eq(a.y, b.y))
+    {
         intercept_x = GEO_INF, intercept_y = a.y, k = 0;
+        tangential.x = 1, tangential.y = 0;
+    }
     else if (eq(a.x, b.x))
+    {
         intercept_x = a.x, intercept_y = GEO_INF, k = GEO_INF;
+        tangential.x = 0, tangential.y = 1;
+    }
     else
     {
         intercept_x = a.x - a.y * (a.x - b.x) / (a.y - b.y);
         intercept_y = a.y - a.x * (a.y - b.y) / (a.x - b.x);
         k = -intercept_y / intercept_x;
+        tangential = Vec(1, k).normalization();
     }
 }
-double Line::operator()(const double &x)
+Line::operator Vec() const
+{
+    return tangential;
+}
+double Line::operator()(const double &x) const
 {
     return k * x + intercept_y;
 }
-double Line::operator[](const double &y)
+double Line::operator[](const double &y) const
 {
     if (k == GEO_INF)
         return intercept_x;
     return (y - intercept_y) / k;
+}
+bool Line::is_on(Point p) const
+{
+    return p.y == operator()(p.x);
 }
 
 LineSegment::LineSegment(Point a, Point b) : Line(a, b)
@@ -88,21 +129,61 @@ LineSegment::LineSegment(Point a, Point b) : Line(a, b)
     else
         max_y = b.y, min_y = a.y;
 }
-Point LineSegment::left_endpoint()
+Point LineSegment::left_endpoint() const
 {
     return Point(min_x, operator()(min_x));
 }
-Point LineSegment::right_endpoint()
+Point LineSegment::right_endpoint() const
 {
     return Point(max_x, operator()(max_x));
 }
-Point LineSegment::upper_endpoint()
+Point LineSegment::upper_endpoint() const
 {
     return Point(operator[](max_y), max_y);
 }
-Point LineSegment::lower_endpoint()
+Point LineSegment::lower_endpoint() const
 {
     return Point(operator[](min_y), min_y);
+}
+
+HalfPlane::HalfPlane(const Line &l, Point p) : Line(l)
+{
+    if (is_on(p))
+        throw "Failed to Create HalfPlane";
+    normal = p - anch;
+    normal = normal - (normal * tangential) * tangential;
+    normal.normalization();
+}
+HalfPlane::HalfPlane(const Line &l, int direction) : Line(l)
+{
+    Point p;
+    switch (direction)
+    {
+    case LEFT:
+        p = anch + Point(-1, 0);
+        break;
+    case RIGHT:
+        p = anch + Point(1, 0);
+        break;
+    case ABOVE:
+        p = anch + Point(0, 1);
+        break;
+    case BELOW:
+        p = anch + Point(0, -1);
+        break;
+    default:
+        throw "Wrong Parameter";
+        break;
+    }
+    if (is_on(p))
+        throw "Failed to Create HalfPlane";
+    normal = p - anch;
+    normal = normal - (normal * tangential) * tangential;
+    normal.normalization();
+}
+bool HalfPlane::is_in(Point p) const
+{
+    return normal * (p - anch) >= 0;
 }
 
 Polygon::Polygon(const std::vector<Point> &p_list_) // const allows Rvalue references
@@ -124,7 +205,7 @@ void Polygon::set_with_point(const std::vector<Point> &p_list_) // 所有的构�
         throw "Incorrect Number of Points!";
     p_list.assign(p_list_.begin(), p_list_.end());
 }
-double Polygon::area()
+double Polygon::area() const
 {
     double ans = 0;
     if (p_list.size() <= 1)
@@ -139,7 +220,7 @@ double Polygon::area()
     ans += cross(p_list[0], p_list[p_list.size() - 1]);
     return abs(ans);
 }
-double Polygon::perimeter()
+double Polygon::perimeter() const
 {
     double ans = 0;
     if (p_list.size() <= 1)
@@ -154,7 +235,7 @@ double Polygon::perimeter()
     ans += Distance(p_list[0], p_list[p_list.size() - 1]);
     return ans;
 }
-bool Polygon::in_Poly(Point a) //用atan2实现？用向量乘法实现？（暂定前者）
+bool Polygon::in_Poly(Point a) const //用atan2实现？用向量乘法实现？（暂定前者）
 {
     double ans = 0;
     if (p_list.size() <= 1)
@@ -182,11 +263,11 @@ void Triangle::set_with_point(const std::vector<Point> &p_list_)
         throw "Incorrect Number of Points!";
     p_list.assign(p_list_.begin(), p_list_.end());
 }
-double Triangle::area()
+double Triangle::area() const
 {
     return abs(cross(p_list[1] - p_list[0], p_list[2] - p_list[0]));
 }
-Point Triangle::centroid()
+Point Triangle::centroid() const
 {
     Point a = p_list[0], b = p_list[1], c = p_list[2];
     return Point((a.x + b.x + c.x) / 3, (a.y + b.y + c.y) / 3);

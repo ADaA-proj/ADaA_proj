@@ -1,6 +1,7 @@
 #include "geometry2D.h"
 #include <cmath>
 #include <algorithm>
+#include <deque>
 
 static const double eps = 1e-6;
 static inline bool eq(double a, double b)
@@ -22,7 +23,7 @@ double degree(Point p, Point q)
     return atan2(p.y, p.x) - atan2(q.y, q.x);
 }
 
-Polygon ConvexHall(std::vector<Point> &point_list) // Graham scan O(nlogn)//用传输polygon得引用的方法来避免传输vector？
+Polygon ConvexHall(std::vector<Point> point_list) // Graham scan O(nlogn)//用传输polygon得引用的方法来避免传输vector？
 {
     size_t len = point_list.size();
     if (len < 3)
@@ -57,7 +58,7 @@ Polygon ConvexHall(std::vector<Point> &point_list) // Graham scan O(nlogn)//用�
     return Polygon(out);
 }
 
-double Distance(Point p, Line l, int norm)
+double Distance(Point p, const Line &l, int norm)
 {
     double a1, a2, b;
     if (l.intercept_x == GEO_INF)
@@ -89,8 +90,7 @@ double Distance(Point p, Line l, int norm)
 
 double Distance(Point p, Point q)
 {
-    Point tmp = p - q;
-    return sqrt(tmp * tmp);
+    return (p - q).norm();
 }
 
 double Distance(Point p, LineSegment l) //p到ab线段距离
@@ -106,7 +106,7 @@ double Distance(Point p, LineSegment l) //p到ab线段距离
     }
 }
 
-Point Common_point(Line a, Line b)
+Point Common_point(const Line &a, const Line &b)
 {
     if (eq(a.k, b.k) == 1)
         return Point(GEO_INF, GEO_INF);
@@ -127,4 +127,60 @@ Point Common_point(Line a, Line b)
         interY = a(interX);
     }
     return Point(interX, interY);
+}
+
+bool checkback(std::deque<HalfPlane> &deq, HalfPlane hp)
+{
+    std::deque<HalfPlane>::iterator it = deq.end();
+    it--;
+    HalfPlane back1 = *it;
+    it--;
+    HalfPlane back2 = *it;
+    return cross(Point(hp), Common_point(back1, back2)) < eps;
+}
+
+bool checkfront(std::deque<HalfPlane> &deq, HalfPlane hp)
+{
+    std::deque<HalfPlane>::iterator it = deq.begin();
+    it++;
+    HalfPlane front1 = *it;
+    it++;
+    HalfPlane front2 = *it;
+    return cross(Point(hp), Common_point(front1, front2)) < eps;
+}
+
+Polygon HalfPlaneIntersection(std::vector<HalfPlane> Line_list) //未完成检验
+{
+    if (Line_list.size() < 3)
+    {
+        //错误处理？
+        //定义一个“空”的宏变量？
+    }
+    sort(Line_list.begin(), Line_list.end());
+    std::deque<HalfPlane> deq;
+    for (size_t i = 0; i < Line_list.size() - 1; ++i)
+    {
+        if (eq(Line_list[i].degree, Line_list[i + 1].degree))
+        {
+            Line_list.erase((int)i);
+            --i;
+        }
+    }
+    for (size_t i = 0; i < Line_list.size(); ++i)
+    {
+        while (!deq.empty() && checkback(deq, Line_list[i]))
+            deq.pop_back();
+        while (!deq.empty() && checkfront(deq, Line_list[i]))
+            deq.pop_front();
+        deq.push_back(Line_list[i]);
+    }
+    while (!deq.empty() && checkback(deq, deq.front()))
+        deq.pop_back();
+    while (!deq.empty() && checkfront(deq, deq.back()))
+        deq.pop_front();
+    if (deq.size() < 3)
+    {
+        throw "error!";
+    }
+    return Polygon(deq);
 }
