@@ -2,6 +2,7 @@
 
 #include "shape2D.h"
 #include <vector>
+#include <deque>
 
 double cross(Point p, Point q);
 double degree(Point p, Point q); //两点表示向量的有向角度
