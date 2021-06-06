@@ -153,6 +153,8 @@ HalfPlane::HalfPlane(const Line &l, Point p) : Line(l)
     normal = p - anch;
     normal = normal - (normal * tangential) * tangential;
     normal.normalization();
+    if (cross(normal, tangential) < 0)
+        tangential.x = -tangential.x, tangential.y = -tangential.y;
 }
 HalfPlane::HalfPlane(const Line &l, int direction) : Line(l)
 {
