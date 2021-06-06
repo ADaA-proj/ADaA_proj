@@ -99,6 +99,9 @@ public:
     //void add_point(Point p);
     //void add_line(Line l);
     bool in_Poly(Point a) const;
+    Point operator()(int k)const;
+    size_t Polygon::size()const;
+    double MinDis(Point p)const;
 };
 
 class Triangle : public Polygon
