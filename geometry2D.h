@@ -15,4 +15,5 @@ Point Common_point(const Line &a, const Line &b);
 
 Polygon ConvexHall(std::vector<Point> point_list);
 Polygon InterSection(const Polygon &a, const Polygon &b);
+Polygon HalfPlaneIntersection(std::vector<HalfPlane> Line_list);
 Polygon Merge(const Polygon &a, const Polygon &b);

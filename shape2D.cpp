@@ -117,6 +117,18 @@ bool Line::is_on(Point p) const
 {
     return p.y == operator()(p.x);
 }
+double Line::get_k() const
+{
+    return k;
+}
+Point Line::get_intercept() const
+{
+    return Point(intercept_x, intercept_y);
+}
+Point Line::get_aPoint() const
+{
+    return anch;
+}
 
 LineSegment::LineSegment(Point a, Point b) : Line(a, b)
 {

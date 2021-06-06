@@ -37,6 +37,9 @@ public:
     double operator()(const double &x) const;
     double operator[](const double &y) const;
     bool is_on(Point p) const;
+    double get_k() const;
+    Point get_intercept() const;
+    Point get_aPoint() const;
 
 protected:
     Vec tangential;
@@ -65,6 +68,7 @@ class HalfPlane : public Line
 #define RIGHT 2
 #define ABOVE 3
 #define BELOW 4
+    friend bool cmp(const HalfPlane &a, const HalfPlane &b);
 
 public:
     HalfPlane() {}

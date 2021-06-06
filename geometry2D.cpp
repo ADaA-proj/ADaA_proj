@@ -129,7 +129,7 @@ Point Common_point(const Line &a, const Line &b)
     return Point(interX, interY);
 }
 
-bool checkback(std::deque<HalfPlane> &deq, HalfPlane hp)
+static bool checkback(std::deque<HalfPlane> &deq, HalfPlane hp)
 {
     std::deque<HalfPlane>::iterator it = deq.end();
     it--;
@@ -138,8 +138,7 @@ bool checkback(std::deque<HalfPlane> &deq, HalfPlane hp)
     HalfPlane back2 = *it;
     return cross(Point(hp), Common_point(back1, back2)) < eps;
 }
-
-bool checkfront(std::deque<HalfPlane> &deq, HalfPlane hp)
+static bool checkfront(std::deque<HalfPlane> &deq, HalfPlane hp)
 {
     std::deque<HalfPlane>::iterator it = deq.begin();
     it++;
@@ -148,21 +147,26 @@ bool checkfront(std::deque<HalfPlane> &deq, HalfPlane hp)
     HalfPlane front2 = *it;
     return cross(Point(hp), Common_point(front1, front2)) < eps;
 }
-
 Polygon HalfPlaneIntersection(std::vector<HalfPlane> Line_list) //未完成检验
 {
     if (Line_list.size() < 3)
     {
+        throw "error";
         //错误处理？
         //定义一个“空”的宏变量？
     }
-    sort(Line_list.begin(), Line_list.end());
-    std::deque<HalfPlane> deq;
-    for (size_t i = 0; i < Line_list.size() - 1; ++i)
+    auto cmp = [](const HalfPlane &a, const HalfPlane &b)
     {
-        if (eq(Line_list[i].degree, Line_list[i + 1].degree))
+        return (a.get_k() == b.get_k()) ? (a.get_k() > b.get_k()) : (a.is_in(b.get_aPoint()));
+    };
+    sort(Line_list.begin(), Line_list.end(), cmp);
+    std::deque<HalfPlane> deq;
+    size_t len = Line_list.size() - 1;
+    for (size_t i = 0; i < len; ++i)
+    {
+        if (eq(Line_list[i].get_k(), Line_list[i + 1].get_k()))
         {
-            Line_list.erase((int)i);
+            Line_list.erase(Line_list.begin() + i);
             --i;
         }
     }
