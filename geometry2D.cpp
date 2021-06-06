@@ -7,8 +7,12 @@ static inline bool eq(double a, double b)
 {
     return ((a - b) < eps) || ((b - a) < eps);
 }
+static inline double abs(double x)
+{
+    return (x < 0) ? -x : x;
+}
 
-double cross(Point p, Point q)
+double cross(Vec p, Vec q)
 {
     return p.x * q.y - p.y * q.x;
 }

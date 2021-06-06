@@ -3,8 +3,9 @@
 The term project of the Algorithm Design and Analysis by HZX and ZMT.
 
 ## Class
-- Point
+- Point(Vec)
 - Line
+  - LineSegment
 - Shape(2D)
   - Polygon
     - Rectangle

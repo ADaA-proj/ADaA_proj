@@ -10,6 +10,7 @@
 class Point //also vector
 {
 public:
+    Point() {}
     Point(double x_, double y_);
     Point operator+(Point q);
     Point operator-(Point q);
@@ -25,17 +26,19 @@ typedef Point Vec;
 class Line
 {
 public:
+    Line() {}
     Line(double interceptx_or_k, double intercepty_or_b, bool use_kb = 0); //这里的默认参数和实现的时候的默认参数貌似不能同时使用
     Line(Point a, Point b);
     double operator()(const double &x);
     double operator[](const double &y);
 
-    double intercept_x, intercept_y, k;
+    double intercept_x = 0, intercept_y = 0, k = 1;
 };
 
 class LineSegment : public Line
 {
 public:
+    LineSegment() {}
     LineSegment(Point a, Point b);
     Point left_endpoint();
     Point right_endpoint();
@@ -43,8 +46,8 @@ public:
     Point lower_endpoint();
 
 private:
-    double min_x, max_x;
-    double min_y, max_y;
+    double min_x = -1, max_x = 1;
+    double min_y = -1, max_y = 1;
 };
 
 class Shape
@@ -57,10 +60,12 @@ protected:
     std::vector<Point> p_list;
 
 public:
+    Polygon() {}
     Polygon(const std::vector<Point> &p_list_);
     Polygon(const std::vector<Line> &l_list_);
-    double Perimeter();
-    double Area();
+    void set_with_point(const std::vector<Point> &p_list_);
+    double perimeter();
+    double area();
     //void add_point(Point p);
     //void add_line(Line l);
     bool in_Poly(Point a);
@@ -69,16 +74,17 @@ public:
 class HalfPlane : public Polygon
 {
 public:
-    //double Perimeter();
-    //double Area();
+    //double perimeter();
+    //double area();
 };
 
 class Triangle : public Polygon
 {
 public:
+    Triangle() {}
     Triangle(const std::vector<Point> &p_list_);
-    //double Perimeter();
-    //double Area();
+    void set_with_point(const std::vector<Point> &p_list_);
+    double area();
     Point centroid(); // 重心
     //Point orthocenter(); // 垂心
 };
@@ -86,8 +92,11 @@ public:
 class Rectangle : public Polygon
 {
 public:
-    //double Perimeter();
-    //double Area();
+    Rectangle() {}
+    //double area();
+
+private:
+    double l, d;
 };
 
 class ConicSection : public Shape
@@ -97,8 +106,8 @@ protected:
     double center_x, center_y;
 
 public:
-    double Perimeter();
-    double Area();
+    double perimeter();
+    double area();
 };
 
 class Ellipse : public ConicSection

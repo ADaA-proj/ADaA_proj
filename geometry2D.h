@@ -3,7 +3,7 @@
 #include "shape2D.h"
 #include <vector>
 
-double cross(Point p, Point q);
+double cross(Vec p, Vec q);
 double degree(Point p, Point q); //两点表示向量的有向角度
 
 // norm denotes to what norm to compute, -1 denotes to l_infinity norm

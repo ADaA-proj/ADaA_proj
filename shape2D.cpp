@@ -6,6 +6,10 @@ static inline bool eq(double a, double b)
 {
     return ((a - b) < eps) || ((b - a) < eps);
 }
+static inline double abs(double x)
+{
+    return (x < 0) ? -x : x;
+}
 
 Point::Point(double x_, double y_) : x(x_), y(y_) {}
 Point Point::operator+(Point q)
@@ -103,7 +107,7 @@ Point LineSegment::lower_endpoint()
 
 Polygon::Polygon(const std::vector<Point> &p_list_) // const allows Rvalue references
 {
-    p_list.assign(p_list_.begin(), p_list_.end());
+    set_with_point(p_list_);
 }
 Polygon::Polygon(const std::vector<Line> &l_list_) // 暂时假设他的传输都是按照一定顺序,后面可以通过凸包、半平面交等方法不要求顺序
 {
@@ -114,7 +118,13 @@ Polygon::Polygon(const std::vector<Line> &l_list_) // 暂时假设他的传输�
     }
     p_list.push_back(Common_point(l_list_[l_list_.size() - 1], l_list_[0]));
 }
-double Polygon::Area()
+void Polygon::set_with_point(const std::vector<Point> &p_list_) // 所有的构造函数都直接调用这种set_with_xxx得了
+{
+    if (p_list_.size() < 3)
+        throw "Incorrect Number of Points!";
+    p_list.assign(p_list_.begin(), p_list_.end());
+}
+double Polygon::area()
 {
     double ans = 0;
     if (p_list.size() <= 1)
@@ -129,7 +139,7 @@ double Polygon::Area()
     ans += cross(p_list[0], p_list[p_list.size() - 1]);
     return abs(ans);
 }
-double Polygon::Perimeter()
+double Polygon::perimeter()
 {
     double ans = 0;
     if (p_list.size() <= 1)
@@ -162,10 +172,19 @@ bool Polygon::in_Poly(Point a) //用atan2实现？用向量乘法实现？（暂
     return abs(ans / (2.0 * PI)) > eps;
 }
 
-Triangle::Triangle(const std::vector<Point> &p_list_) : Polygon(p_list_)
+Triangle::Triangle(const std::vector<Point> &p_list_)
 {
-    // 错误处理咋办
-    // 能不能做得再robust一点
+    set_with_point(p_list_);
+}
+void Triangle::set_with_point(const std::vector<Point> &p_list_)
+{
+    if (p_list_.size() != 3)
+        throw "Incorrect Number of Points!";
+    p_list.assign(p_list_.begin(), p_list_.end());
+}
+double Triangle::area()
+{
+    return abs(cross(p_list[1] - p_list[0], p_list[2] - p_list[0]));
 }
 Point Triangle::centroid()
 {
@@ -173,7 +192,7 @@ Point Triangle::centroid()
     return Point((a.x + b.x + c.x) / 3, (a.y + b.y + c.y) / 3);
 }
 
-double ConicSection::Perimeter()
+double ConicSection::perimeter()
 {
     if (e >= 1)
         return GEO_INF;
@@ -194,7 +213,7 @@ double ConicSection::Perimeter()
         return area;
     }
 }
-double ConicSection::Area()
+double ConicSection::area()
 {
     if (e >= 1)
         return GEO_INF;
