@@ -151,7 +151,7 @@ Polygon HalfPlaneIntersection(std::vector<HalfPlane> &Line_list)//未完成检�
     std::deque<HalfPlane> deq;
     for(size_t i=0;i<Line_list.size()-1;++i)
     {
-        if(eq(Line_list[i].degree,Line_list[i+1].degree)){Line_list.erase((int)i);--i;}
+        if(eq(Line_list[i].degree,Line_list[i+1].degree)){Line_list.erase(Line_list.begin()+i);--i;}
     }
     for(size_t i=0;i<Line_list.size();++i)
     {
@@ -164,5 +164,5 @@ Polygon HalfPlaneIntersection(std::vector<HalfPlane> &Line_list)//未完成检�
     if(deq.size()<3){
         throw "error!";
     }
-    return Polygon(deq);
+    return Polygon(std::vector<Line>(deq.begin(),deq.end()));
 }
