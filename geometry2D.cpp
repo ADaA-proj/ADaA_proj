@@ -188,3 +188,18 @@ Polygon HalfPlaneIntersection(std::vector<HalfPlane> Line_list) //未完成检�
     }
     return Polygon(std::vector<Line>(deq.begin(), deq.end()));
 }
+
+double MinDis(const Polygon&a,const Polygon&b)
+{
+    if(a.size()<3||b.size()<3)
+    {
+        throw "error!";
+        exit(-1);
+    }
+    double ans=GEO_INF;
+    for(int i=0,siz=a.size();i<siz;++i)
+        ans=std::min(ans,b.MinDis(a(i)));
+    for(int i=0,siz=b.size();i<siz;++i)
+        ans=std::min(ans,a.MinDis(b(i)));
+    return ans;
+}
