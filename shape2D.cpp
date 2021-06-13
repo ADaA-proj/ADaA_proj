@@ -1,6 +1,7 @@
 #include "shape2D.h"
 #include "geometry2D.h"
 #include <algorithm>
+#include <iostream>
 
 static const double eps = 1e-6;
 static inline bool eq(double a, double b)
@@ -28,6 +29,10 @@ Point Point::operator*(double k) const
 Point operator*(double k, Point p)
 {
     return p * k;
+}
+Point Point::operator/(double k) const
+{
+    return Point(x / k, y / k);
 }
 double Point::operator*(Point q) const
 {
@@ -267,24 +272,22 @@ bool Polygon::in_Poly(Point a) const //用atan2实现？用向量乘法实现？
     ans += degree(p_list[0], p_list[p_list.size() - 1]);
     return abs(ans / (2.0 * PI)) > eps;
 }
-
-Point Polygon::operator()(int k)const
+Point Polygon::operator()(int k) const
 {
     return p_list[k];
 }
-
-size_t Polygon::size()const
+size_t Polygon::size() const
 {
     return p_list.size();
 }
-
-double Polygon::MinDis(Point p)const
+double Polygon::MinDis(Point p) const
 {
-    if(in_Poly(p))return 0.0;
-    double ans=GEO_INF;
-    for(size_t i=1;i<p_list.size();++i)
-        ans=std::min(ans,Distance(p,LineSegment(p_list[i-1],p_list[i])));
-    ans=std::min(ans,Distance(p,LineSegment(p_list[0],p_list[p_list.size()-1])));
+    if (in_Poly(p))
+        return 0.0;
+    double ans = GEO_INF;
+    for (size_t i = 1; i < p_list.size(); ++i)
+        ans = std::min(ans, Distance(p, LineSegment(p_list[i - 1], p_list[i])));
+    ans = std::min(ans, Distance(p, LineSegment(p_list[0], p_list[p_list.size() - 1])));
     return ans;
 }
 
@@ -308,7 +311,15 @@ Point Triangle::centroid() const
     return Point((a.x + b.x + c.x) / 3, (a.y + b.y + c.y) / 3);
 }
 
-double ConicSection::perimeter()
+ConicSection::ConicSection(double a_, double b_, double e_) : a(a_), b(b_), e(e_), c(e_ * a_) {}
+ConicSection::ConicSection(Point center_, Vec long_axis_, Vec short_axis_, double e_) : center(center_), e(e_)
+{
+    a = long_axis_.norm(), b = short_axis_.norm();
+    long_axis = long_axis_.normalization();
+    short_axis = short_axis_.normalization();
+    c = a * e;
+}
+double ConicSection::perimeter() const
 {
     if (e >= 1)
         return GEO_INF;
@@ -329,9 +340,83 @@ double ConicSection::perimeter()
         return area;
     }
 }
-double ConicSection::area()
+double ConicSection::area() const
 {
     if (e >= 1)
         return GEO_INF;
     return PI * a * b;
+}
+Point ConicSection::get_center() const
+{
+    return center;
+}
+Vec ConicSection::get_long_axis() const
+{
+    return long_axis;
+}
+Vec ConicSection::get_short_axis() const
+{
+    return short_axis;
+}
+double ConicSection::get_a() const
+{
+    return a;
+}
+double ConicSection::get_b() const
+{
+    return b;
+}
+double ConicSection::get_e() const
+{
+    return e;
+}
+
+Ellipse::Ellipse(double a_, double b_) : ConicSection(a_, b_, std::sqrt(1 - std::pow(b_ / a_, 2))) {}
+Ellipse::Ellipse(Point center_, Vec long_axis_, Vec short_axis_)
+{
+    center = center_;
+    a = long_axis_.norm(), b = short_axis_.norm();
+    printf("%f, %f\n", short_axis_.x, short_axis_.y);
+    long_axis = long_axis_.normalization();
+    short_axis = short_axis_.normalization();
+    e = std::sqrt(1 - std::pow(b / a, 2));
+    c = a * e;
+}
+double Ellipse::operator()(Point p) const
+{
+    p = p - center;
+    double x = p * long_axis, y = p * short_axis;
+    return pow(x / a, 2) + pow(y / b, 2);
+}
+std::pair<double, double> Ellipse::operator()(double x_) const
+{
+    x_ -= center.x;
+    double a1 = pow(long_axis.x / a, 2) + pow(long_axis.y / b, 2);
+    double delta = a1 - pow(x_ / a / b, 2);
+    if (delta < 0)
+        return std::make_pair(GEO_INF, GEO_INF);
+    double a2 = x_ * long_axis.x * long_axis.y * (1 / b / b - 1 / a / a);
+    delta = sqrt(delta);
+    return std::make_pair((a2 + delta) / a1 + center.y, (a2 - delta) / a1 + center.y);
+}
+std::pair<double, double> Ellipse::operator[](double y_) const
+{
+    y_ -= center.y;
+    double a1 = pow(long_axis.y / a, 2) + pow(long_axis.x / b, 2);
+    double delta = a1 - pow(y_ / a / b, 2);
+    if (delta < 0)
+        return std::make_pair(GEO_INF, GEO_INF);
+    double a2 = y_ * long_axis.x * long_axis.y * (1 / b / b - 1 / a / a);
+    delta = sqrt(delta);
+    return std::make_pair((a2 + delta) / a1 + center.x, (a2 - delta) / a1 + center.x);
+}
+
+Circle::Circle(double r_)
+{
+    a = b = r_;
+}
+Circle::Circle(Point center_, double r_)
+{
+    center = center_;
+    a = b = r_;
 }

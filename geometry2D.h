@@ -17,4 +17,6 @@ Polygon ConvexHall(std::vector<Point> point_list);
 Polygon InterSection(const Polygon &a, const Polygon &b);
 Polygon HalfPlaneIntersection(std::vector<HalfPlane> Line_list);
 Polygon Merge(const Polygon &a, const Polygon &b);
-double MinDis(const Polygon&a,const Polygon&b);// checking
+double MinDistance(const Polygon &a, const Polygon &b); // checking
+
+std::pair<Point, Point> CommonPoint(const Line &l, const Ellipse &e);

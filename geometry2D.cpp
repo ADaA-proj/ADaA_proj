@@ -189,17 +189,51 @@ Polygon HalfPlaneIntersection(std::vector<HalfPlane> Line_list) //未完成检�
     return Polygon(std::vector<Line>(deq.begin(), deq.end()));
 }
 
-double MinDis(const Polygon&a,const Polygon&b)
+double MinDistance(const Polygon &a, const Polygon &b)
 {
-    if(a.size()<3||b.size()<3)
+    if (a.size() < 3 || b.size() < 3)
     {
         throw "error!";
         exit(-1);
     }
-    double ans=GEO_INF;
-    for(int i=0,siz=a.size();i<siz;++i)
-        ans=std::min(ans,b.MinDis(a(i)));
-    for(int i=0,siz=b.size();i<siz;++i)
-        ans=std::min(ans,a.MinDis(b(i)));
+    double ans = GEO_INF;
+    for (int i = 0, siz = a.size(); i < siz; ++i)
+        ans = std::min(ans, b.MinDis(a(i)));
+    for (int i = 0, siz = b.size(); i < siz; ++i)
+        ans = std::min(ans, a.MinDis(b(i)));
     return ans;
+}
+
+std::pair<Point, Point> CommonPoint(const Line &l, const Ellipse &e)
+{
+    double k = l.get_k();
+    Point intercept = l.get_intercept();
+    if (k == GEO_INF)
+    {
+        std::pair<double, double> tmp = e(intercept.x);
+        if (tmp.first == GEO_INF)
+            return std::make_pair(Point(GEO_INF, GEO_INF), Point(GEO_INF, GEO_INF));
+        return std::make_pair(Point(intercept.x, tmp.first), Point(intercept.x, tmp.second));
+    }
+    else if (k == 0)
+    {
+        std::pair<double, double> tmp = e[intercept.y];
+        if (tmp.first == GEO_INF)
+            return std::make_pair(Point(GEO_INF, GEO_INF), Point(GEO_INF, GEO_INF));
+        return std::make_pair(Point(tmp.first, intercept.y), Point(tmp.second, intercept.y));
+    }
+    else
+    {
+        Vec l_axis = e.get_long_axis(), center = e.get_center();
+        double y0 = l(center.x) - center.y;
+        double a = e.get_a(), b = e.get_b();
+        double a1 = pow((l_axis.x + k * l_axis.y) / a, 2) + pow((k * l_axis.x - l_axis.y) / b, 2);
+        double delta = a1 - pow(y0 / a / b, 2);
+        if (delta < 0)
+            return std::make_pair(Point(GEO_INF, GEO_INF), Point(GEO_INF, GEO_INF));
+        delta = sqrt(delta);
+        double a2 = ((1 / b / b - 1 / a / a) * l_axis.x * l_axis.y - k * (pow(l_axis.y / a, 2) + pow(l_axis.x / b, 2))) * y0;
+        double x1 = (a2 + delta) / a1 + center.x, x2 = (a2 - delta) / a1 + center.x;
+        return std::make_pair(Point(x1, l(x1)), Point(x2, l(x2)));
+    }
 }

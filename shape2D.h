@@ -16,6 +16,7 @@ public:
     Point operator-(Point q) const;
     Point operator*(double k) const;
     friend Point operator*(double k, Point p);
+    Point operator/(double k) const;
     double operator*(Point q) const;
     double norm(int n = 2) const;
     Point &normalization();
@@ -99,9 +100,9 @@ public:
     //void add_point(Point p);
     //void add_line(Line l);
     bool in_Poly(Point a) const;
-    Point operator()(int k)const;
-    size_t Polygon::size()const;
-    double MinDis(Point p)const;
+    Point operator()(int k) const;
+    size_t size() const;
+    double MinDis(Point p) const;
 };
 
 class Triangle : public Polygon
@@ -128,22 +129,41 @@ private:
 class ConicSection : public Shape
 {
 protected:
-    double a, b, c, e;
-    double center_x, center_y;
+    double a = 1, b = 1, c = 0, e = 0;
+    Point center = Point(0, 0);
+    Vec long_axis = Vec(1, 0), short_axis = Vec(0, 1);
 
 public:
-    double perimeter();
-    double area();
+    ConicSection() {}
+    ConicSection(double a_, double b_, double e_);
+    ConicSection(Point center_, Vec long_axis_, Vec short_axis_, double e_);
+    double perimeter() const;
+    double area() const;
+    Point get_center() const;
+    Vec get_long_axis() const;
+    Vec get_short_axis() const;
+    double get_a() const;
+    double get_b() const;
+    double get_e() const;
 };
 
 class Ellipse : public ConicSection
 {
 public:
+    Ellipse() {}
+    Ellipse(double a_, double b_);
+    Ellipse(Point center_, Vec long_axis_, Vec short_axis_);
+    double operator()(Point p) const;
+    std::pair<double, double> operator()(double x_) const;
+    std::pair<double, double> operator[](double y_) const;
 };
 
 class Circle : public Ellipse
 {
 public:
+    Circle() {}
+    Circle(double r_);
+    Circle(Point center_, double r_);
 };
 
 class Parabola : public ConicSection
