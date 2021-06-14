@@ -136,7 +136,7 @@ protected:
 public:
     ConicSection() {}
     ConicSection(double a_, double b_, double e_);
-    ConicSection(Point center_, Vec long_axis_, Vec short_axis_, double e_);
+    ConicSection(Point center_, double a_, double b_, double e_, Vec long_axis_);
     double perimeter() const;
     double area() const;
     Point get_center() const;
@@ -145,6 +145,8 @@ public:
     double get_a() const;
     double get_b() const;
     double get_e() const;
+    void rotation(double theta);
+    void translation(Vec delta);
 };
 
 class Ellipse : public ConicSection

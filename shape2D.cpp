@@ -312,11 +312,10 @@ Point Triangle::centroid() const
 }
 
 ConicSection::ConicSection(double a_, double b_, double e_) : a(a_), b(b_), e(e_), c(e_ * a_) {}
-ConicSection::ConicSection(Point center_, Vec long_axis_, Vec short_axis_, double e_) : center(center_), e(e_)
+ConicSection::ConicSection(Point center_, double a_, double b_, double e_, Vec long_axis_) : center(center_), a(a_), b(b_), e(e_)
 {
-    a = long_axis_.norm(), b = short_axis_.norm();
     long_axis = long_axis_.normalization();
-    short_axis = short_axis_.normalization();
+    short_axis = Vec(-long_axis.y, long_axis.x);
     c = a * e;
 }
 double ConicSection::perimeter() const
@@ -369,6 +368,15 @@ double ConicSection::get_b() const
 double ConicSection::get_e() const
 {
     return e;
+}
+void ConicSection::rotation(double theta)
+{
+    long_axis = cos(theta) * long_axis + sin(theta) * short_axis;
+    short_axis = Vec(-long_axis.y, long_axis.x);
+}
+void ConicSection::translation(Vec delta)
+{
+    center = center + delta;
 }
 
 Ellipse::Ellipse(double a_, double b_) : ConicSection(a_, b_, std::sqrt(1 - std::pow(b_ / a_, 2))) {}

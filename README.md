@@ -29,7 +29,6 @@ The term project of the Algorithm Design and Analysis by HZX and ZMT.
   - [ ] some polyfunction about args
 
 ## Problem
-- l_n norm formula at goemetry2D.cpp:Distance
 - compute Polygon from Lines
 - error handler? shape2D.cpp:Triangle, shape2D.cpp:Polygon
 - Dynamicly adding lines and dots to create a polygon

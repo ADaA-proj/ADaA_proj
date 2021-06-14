@@ -78,13 +78,16 @@ double Distance(Point p, const Line &l, int norm)
         b = 1;
     }
     double dis = a1 * p.x + a2 * p.y - b;
-    if (norm == 2)
+    a1 = abs(a1), a2 = abs(a2);
+    if (norm == -1)
+        return dis / (a1 + a2);
+    else if (norm == 1)
+        return dis / std::max(a1, a2);
+    else
     {
-        dis = dis / Point(a1, a2).norm(2);
-        return dis;
-    }
-    else if (norm == -1)
-    {
+        double p = double(norm) / (norm - 1);
+        double tmp = pow(pow(a1, p) + pow(a2, p), 1 / p);
+        return dis / tmp;
     }
 }
 
