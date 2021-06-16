@@ -61,12 +61,12 @@ Polygon ConvexHall(std::vector<Point> point_list) // Graham scan O(nlogn)//用�
 double Distance(Point p, const Line &l, int norm)
 {
     double a1, a2, b;
-    if (l.intercept_x == GEO_INF)
+    if (eq(l.intercept_x, GEO_INF))
     {
         a1 = 0, a2 = 1;
         b = l.intercept_y;
     }
-    else if (l.intercept_y == GEO_INF)
+    else if (eq(l.intercept_y, GEO_INF))
     {
         a1 = 1, a2 = 0;
         b = l.intercept_x;
@@ -107,6 +107,11 @@ double Distance(Point p, LineSegment l) //p到ab线段距离
     {
         return std::min(Distance(a, p), Distance(b, p));
     }
+}
+
+double Distance(std::pair<Point,Point> p)
+{
+    return Distance(p.first,p.second);
 }
 
 Point Common_point(const Line &a, const Line &b)
@@ -207,21 +212,21 @@ double MinDistance(const Polygon &a, const Polygon &b)
     return ans;
 }
 
-std::pair<Point, Point> CommonPoint(const Line &l, const Ellipse &e)
+std::pair<Point, Point> Common_Point(const Line &l, const Ellipse &e)
 {
     double k = l.get_k();
     Point intercept = l.get_intercept();
-    if (k == GEO_INF)
+    if (eq(k, GEO_INF))
     {
         std::pair<double, double> tmp = e(intercept.x);
-        if (tmp.first == GEO_INF)
+        if (eq(tmp.first, GEO_INF))
             return std::make_pair(Point(GEO_INF, GEO_INF), Point(GEO_INF, GEO_INF));
         return std::make_pair(Point(intercept.x, tmp.first), Point(intercept.x, tmp.second));
     }
-    else if (k == 0)
+    else if (eq(k, 0))
     {
         std::pair<double, double> tmp = e[intercept.y];
-        if (tmp.first == GEO_INF)
+        if (eq(tmp.first, GEO_INF))
             return std::make_pair(Point(GEO_INF, GEO_INF), Point(GEO_INF, GEO_INF));
         return std::make_pair(Point(tmp.first, intercept.y), Point(tmp.second, intercept.y));
     }
@@ -239,4 +244,52 @@ std::pair<Point, Point> CommonPoint(const Line &l, const Ellipse &e)
         double x1 = (a2 + delta) / a1 + center.x, x2 = (a2 - delta) / a1 + center.x;
         return std::make_pair(Point(x1, l(x1)), Point(x2, l(x2)));
     }
+}
+
+P Best_Arg(bool (*cmp)(double,double), func_t op, Line_with_args l, Ellipse e)
+{
+    if(l.arg_size() == 0)
+    {
+        return std::make_pair(0, op(l, e));
+    }
+    else if(l.arg_size() == 1)
+    {
+        //这里需要再卡一下范围,例如直线与椭圆相交之类的
+        l.set_args(0);
+        double E = op(l, e);
+        P ans = std::make_pair(0, E);
+        printf("%lf %lf\n",ans.first,ans.second);
+        double T = T0, old_args = 0;
+        while(T>=Tt)
+        {
+            double new_args = old_args + T * (std::rand() * 2 - RAND_MAX); //这里需要保证落到一定范围内
+            P new_ = std::make_pair(new_args, op(l, e));
+            if(cmp(new_.second, ans.second))
+            {
+                ans=new_;
+            }
+            if(cmp(new_.second, E) || std::exp((new_.second - E) / T) > std::rand() / RAND_MAX)//
+            {
+                E = new_.second;
+                old_args = new_args;
+            }
+            else
+            {
+                l.set_args(old_args);
+            }
+            T *= Delta;
+        }
+        int steps = 100;
+        while(steps--)
+        {
+            double new_args = old_args + T * (std::rand() * 2 - RAND_MAX); //这里需要保证落到一定范围内
+            P new_ = std::make_pair(new_args, op(l, e));
+            if(cmp(new_.second, ans.second))
+            {
+                ans = new_;
+            }
+        }
+        return ans;
+    }
+    return std::make_pair(0,0);
 }
