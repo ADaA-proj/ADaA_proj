@@ -1,7 +1,5 @@
 #include "shape2D.h"
 #include "geometry2D.h"
-#include <algorithm>
-#include <iostream>
 
 static const double eps = 1e-6;
 static inline bool eq(double a, double b)
@@ -52,6 +50,19 @@ Point &Point::normalization()
     return *this;
 }
 
+void Point::translation(Vec delta)//这里的vec好像有点问题
+{
+    (*this) = (*this) + delta;
+}
+
+void Point::rotation(double theta)
+{
+    Vec tmp;
+    tmp.x = x * cos(theta) - y * sin(theta);
+    tmp.y = x * sin(theta) + y * cos(theta);
+    (*this) = tmp;  
+}
+
 Line::Line()
 {
     tangential = Vec(1, 1).normalization();
@@ -69,12 +80,12 @@ Line::Line(double interceptx_or_k, double intercepty_or_b, bool use_kb)
         k = interceptx_or_k, intercept_y = intercepty_or_b;
         intercept_x = -intercept_y / k;
     }
-    if (k == 0)
+    if (eq(k, 0))
     {
         anch = Point(0, intercept_y);
         tangential = Vec(1, 0);
     }
-    else if (k == GEO_INF)
+    else if (eq(k, GEO_INF))
     {
         anch = Point(intercept_x, 0);
         tangential = Vec(0, 1);
@@ -111,17 +122,19 @@ Line::operator Vec() const
 }
 double Line::operator()(const double &x) const
 {
+    if(eq(k, GEO_INF))
+        return GEO_INF;//
     return k * x + intercept_y;
 }
 double Line::operator[](const double &y) const
 {
-    if (k == GEO_INF)
+    if (eq(k, GEO_INF))
         return intercept_x;
     return (y - intercept_y) / k;
 }
 bool Line::is_on(Point p) const
 {
-    return p.y == operator()(p.x);
+    return eq(p.y, operator()(p.x));
 }
 double Line::get_k() const
 {
@@ -135,6 +148,105 @@ Point Line::get_aPoint() const
 {
     return anch;
 }
+
+void Line::translation(Vec delta)
+{
+    if (eq(k, GEO_INF))
+    {
+        anch.translation(delta);
+        intercept_x += delta.x;
+    }
+    else if(eq(k, 0))
+    {
+        anch.translation(delta);
+        intercept_y += delta.y;
+    }
+    else
+    {
+        anch.translation(delta);
+        intercept_y = delta.y - k * delta.x + intercept_y;
+        intercept_x = -intercept_y/k;
+    }
+}
+
+void Line::rotation(double theta)
+{
+    anch.rotation(theta);
+    
+    k = tan(atan(k) + theta);
+    if(!eq(k, GEO_INF))
+        tangential = Vec(1, k).normalization();
+    else
+        tangential = Vec(0, 1);
+    intercept_x = (*this)[0];
+    intercept_y = (*this)(0);
+    return;
+}
+
+Line_with_args::Line_with_args(Point a)
+{
+    anch = a;
+    intercept_x = intercept_y = k = Nan;
+    args.push_back(&k);
+    flag = 1;
+}
+Line_with_args::Line_with_args(double k_)
+{
+    k = k_;
+    anch = Point(Nan, Nan);
+    intercept_x = intercept_y = Nan;
+    if(!eq(k_,GEO_INF))
+        args.push_back(&intercept_y);
+    else
+        args.push_back(&intercept_x);
+    flag = 2;
+}
+
+size_t Line_with_args::arg_size()const
+{
+    return args.size();
+};
+
+void Line_with_args::set_args(const std::vector<double> &v)
+{
+    for(int i = 0,m = std::min(v.size(), args.size()); i < m; ++i)
+    {
+        (*args[i]) = v[i];
+    }
+    if(flag == 2)
+    {
+        if(!eq(k, GEO_INF))
+            anch = Point(0, intercept_y);
+        else 
+            anch = Point(intercept_x, 0);
+    }
+    intercept_x = (*this)[0];
+    intercept_y = (*this)(0);
+    if(k != GEO_INF)
+        tangential = Point(1,k).normalization();
+    else 
+        tangential = Point(0,1);
+}
+
+void Line_with_args::set_args(double arg)
+{
+    (*args[0]) = arg;
+    if(flag == 2)
+    {
+        if(!eq(k, GEO_INF))
+            anch = Point(0, intercept_y);
+        else 
+            anch = Point(intercept_x, 0);
+    }
+    intercept_x = (*this)[0];
+    intercept_y = (*this)(0);
+    if(k != GEO_INF)
+        tangential = Point(1,k).normalization();
+    else 
+        tangential = Point(0,1);
+}
+
+
 
 LineSegment::LineSegment(Point a, Point b) : Line(a, b)
 {
@@ -322,7 +434,7 @@ double ConicSection::perimeter() const
 {
     if (e >= 1)
         return GEO_INF;
-    else if (e == 0)
+    else if (eq(e, 0))
         return 2 * PI * a;
     else
     {
@@ -417,6 +529,44 @@ std::pair<double, double> Ellipse::operator[](double y_) const
     double a2 = y_ * long_axis.x * long_axis.y * (1 / b / b - 1 / a / a);
     delta = sqrt(delta);
     return std::make_pair((a2 + delta) / a1 + center.x, (a2 - delta) / a1 + center.x);
+}
+
+std::pair<double, double> equation(double a2, double a1, double a0)
+{
+    double delta = a1 * a1 - 4 * a2 * a0;
+    if (delta < 0)
+        return std::make_pair(GEO_INF, GEO_INF);
+    delta = sqrt(delta);
+    a2 *= 2;
+    return std::make_pair((-a1 + delta)/a2,(-a1-delta)/a2);
+}
+
+
+std::pair<Point, Point> Ellipse::Line_intersection_for_stardard(Line l) const
+{
+    if(eq(l.get_k(), GEO_INF))
+    {
+        double tmpx = l.get_intercept().x;
+        std::pair<double,double> tmpys = (*this)(tmpx);
+        return std::make_pair(Point(tmpx,tmpys.first),Point(tmpx,tmpys.second));
+    }
+    else if(eq(l.get_k(), 0))
+    {
+        double tmpy = l.get_intercept().y;
+        std::pair<double,double> tmpxs = (*this)[tmpy];
+        return std::make_pair(Point(tmpxs.first,tmpy),Point(tmpxs.second,tmpy));
+    }
+    else
+    {
+        //(a2k2+b2) x2+2kay0 x+a2(y02-b2)=0
+        double k = l.get_k(),y0 = l.get_intercept().y; 
+        std::pair<double, double> ans = equation(a*a*k*k, 2*k*a*y0, y0*y0-b*b);
+        if(eq(ans.first, GEO_INF)||eq(ans.second,GEO_INF))
+        {
+            return std::make_pair(Point(GEO_INF, GEO_INF), Point(GEO_INF, GEO_INF));
+        }
+        return std::make_pair(Point(ans.first, l(ans.first)), Point(ans.second, l(ans.second)));
+    }
 }
 
 Circle::Circle(double r_)
