@@ -2,6 +2,13 @@
 
 #include "shape2D.h"
 #include <vector>
+#include <cstdlib>
+
+typedef std::pair<double, double> P;
+typedef double (*func_t)(Line, Ellipse);
+
+const double Delta = 0.98;
+const double T0=1.0,Tt=1e-10;
 
 double cross(Vec p, Vec q);
 double degree(Point p, Point q); //两点表示向量的有向角度
@@ -10,6 +17,7 @@ double degree(Point p, Point q); //两点表示向量的有向角度
 double Distance(Point p, const Line &l, int norm = 2);
 double Distance(Point p, Point q);
 double Distance(Point p, LineSegment l);
+double Distance(std::pair<Point,Point>);
 
 Point Common_point(const Line &a, const Line &b);
 
@@ -19,4 +27,5 @@ Polygon HalfPlaneIntersection(std::vector<HalfPlane> Line_list);
 Polygon Merge(const Polygon &a, const Polygon &b);
 double MinDistance(const Polygon &a, const Polygon &b); // checking
 
-std::pair<Point, Point> CommonPoint(const Line &l, const Ellipse &e);
+std::pair<Point, Point> Common_Point(const Line &l, const Ellipse &e);
+P Best_Arg(bool (*cmp)(double,double), func_t op, Line_with_args l, Ellipse e);
