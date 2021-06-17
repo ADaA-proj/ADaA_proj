@@ -4,7 +4,7 @@
 static const double eps = 1e-6;
 static inline bool eq(double a, double b)
 {
-    return ((a - b) < eps) || ((b - a) < eps);
+    return ((a - b) < eps) && ((b - a) < eps);
 }
 static inline double abs(double x)
 {
@@ -172,14 +172,26 @@ void Line::translation(Vec delta)
 void Line::rotation(double theta)
 {
     anch.rotation(theta);
-    
     k = tan(atan(k) + theta);
     if(!eq(k, GEO_INF))
         tangential = Vec(1, k).normalization();
     else
         tangential = Vec(0, 1);
-    intercept_x = (*this)[0];
-    intercept_y = (*this)(0);
+    if(eq(k, 0))
+    {
+        intercept_y = anch.y;
+        intercept_x = GEO_INF;
+    }
+    else if(eq(k, GEO_INF))
+    {
+        intercept_x = anch.x;
+        intercept_y = GEO_INF;
+    }
+    else
+    {
+        intercept_x = anch.x - anch.y / k;
+        intercept_y = anch.y - k * anch.x;
+    }
     return;
 }
 
@@ -189,6 +201,7 @@ Line_with_args::Line_with_args(Point a)
     intercept_x = intercept_y = k = Nan;
     args.push_back(&k);
     flag = 1;
+    //flag==1 k not know
 }
 Line_with_args::Line_with_args(double k_)
 {
@@ -200,6 +213,7 @@ Line_with_args::Line_with_args(double k_)
     else
         args.push_back(&intercept_x);
     flag = 2;
+    //flag==2:b not know
 }
 
 size_t Line_with_args::arg_size()const
@@ -220,8 +234,21 @@ void Line_with_args::set_args(const std::vector<double> &v)
         else 
             anch = Point(intercept_x, 0);
     }
-    intercept_x = (*this)[0];
-    intercept_y = (*this)(0);
+    if(eq(k, 0))
+    {
+        intercept_y = anch.y;
+        intercept_x = GEO_INF;
+    }
+    else if(eq(k, GEO_INF))
+    {
+        intercept_x = anch.x;
+        intercept_y = GEO_INF;
+    }
+    else
+    {
+        intercept_x = anch.x - anch.y / k;
+        intercept_y = anch.y - k * anch.x;
+    }
     if(k != GEO_INF)
         tangential = Point(1,k).normalization();
     else 
@@ -238,8 +265,21 @@ void Line_with_args::set_args(double arg)
         else 
             anch = Point(intercept_x, 0);
     }
-    intercept_x = (*this)[0];
-    intercept_y = (*this)(0);
+    if(eq(k, 0))
+    {
+        intercept_y = anch.y;
+        intercept_x = GEO_INF;
+    }
+    else if(eq(k, GEO_INF))
+    {
+        intercept_x = anch.x;
+        intercept_y = GEO_INF;
+    }
+    else
+    {
+        intercept_x = anch.x - anch.y / k;
+        intercept_y = anch.y - k * anch.x;
+    }
     if(k != GEO_INF)
         tangential = Point(1,k).normalization();
     else 
@@ -412,7 +452,7 @@ void Triangle::set_with_point(const std::vector<Point> &p_list_)
     if (p_list_.size() != 3)
         throw "Incorrect Number of Points!";
     p_list.assign(p_list_.begin(), p_list_.end());
-}
+} 
 double Triangle::area() const
 {
     return abs(cross(p_list[1] - p_list[0], p_list[2] - p_list[0]));
@@ -544,6 +584,7 @@ std::pair<double, double> equation(double a2, double a1, double a0)
 
 std::pair<Point, Point> Ellipse::Line_intersection_for_stardard(Line l) const
 {
+    std::cout<<(GEO_INF<eps)<<std::endl;
     if(eq(l.get_k(), GEO_INF))
     {
         double tmpx = l.get_intercept().x;
@@ -552,7 +593,7 @@ std::pair<Point, Point> Ellipse::Line_intersection_for_stardard(Line l) const
     }
     else if(eq(l.get_k(), 0))
     {
-        double tmpy = l.get_intercept().y;
+        double tmpy = l.get_intercept().y;printf("%lf\n",tmpy);
         std::pair<double,double> tmpxs = (*this)[tmpy];
         return std::make_pair(Point(tmpxs.first,tmpy),Point(tmpxs.second,tmpy));
     }
