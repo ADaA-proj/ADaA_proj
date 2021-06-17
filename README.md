@@ -6,8 +6,8 @@ The term project of the Algorithm Design and Analysis by HZX and ZMT.
 - Point(Vec)
 - Line
   - LineSegment
-- Shape(2D)
   - half plane
+- Shape(2D)
   - Polygon
     - Rectangle
     - triangle
