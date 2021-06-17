@@ -19,18 +19,10 @@ The term project of the Algorithm Design and Analysis by HZX and ZMT.
     - Parabola
 
 ## Built-in Function
-- [X] Perimeter
-- [X] Area
-- [ ] Intersection
-- [X] Convexhall
-- [ ] Merge
-- [ ] Min/Max，Argmin/Argmax
-  - [ ] Distance
-  - [ ] some polyfunction about args
-
-## Problem
-- compute Polygon from Lines
-- error handler? shape2D.cpp:Triangle, shape2D.cpp:Polygon
-- Dynamicly adding lines and dots to create a polygon
-- need the polygon to be convex?
-- Intersection: polygon, line and conic_section ...
+- Perimeter
+- Area
+- Distance
+- CommenPoint
+- Intersection
+- Convexhall
+- Min/Max，Argmin/Argmax
