@@ -1,5 +1,5 @@
 test: shape2D.o geometry2D.o test.o
-	g++ -Wall shape2D.o geometry2D.o test.o -o test
+	g++ -Wall test.o shape2D.o geometry2D.o -o test
 
 %.o: %.cpp
 	g++ -Wall -c $< -o $@

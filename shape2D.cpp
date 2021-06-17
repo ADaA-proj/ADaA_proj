@@ -72,19 +72,27 @@ Line::Line(double interceptx_or_k, double intercepty_or_b, bool use_kb)
     if (use_kb == 0)
     {
         intercept_x = interceptx_or_k, intercept_y = intercepty_or_b;
-        k = -intercept_y / intercept_x;
+        if (intercept_x == GEO_INF)
+            k = 0;
+        else if (intercept_y == GEO_INF)
+            k = GEO_INF;
+        else
+            k = -intercept_y / intercept_x;
     }
     else
     {
         k = interceptx_or_k, intercept_y = intercepty_or_b;
-        intercept_x = -intercept_y / k;
+        if (k == GEO_INF)
+            intercept_x = 0;
+        else
+            intercept_x = -intercept_y / k;
     }
     if (eq(k, 0))
     {
         anch = Point(0, intercept_y);
         tangential = Vec(1, 0);
     }
-    else if (eq(k, GEO_INF))
+    else if (k == GEO_INF)
     {
         anch = Point(intercept_x, 0);
         tangential = Vec(0, 1);

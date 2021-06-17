@@ -216,7 +216,7 @@ std::pair<Point, Point> Common_Point(const Line &l, const Ellipse &e)
 {
     double k = l.get_k();
     Point intercept = l.get_intercept();
-    if (eq(k, GEO_INF))
+    if (k == GEO_INF)
     {
         std::pair<double, double> tmp = e(intercept.x);
         if (eq(tmp.first, GEO_INF))
@@ -311,7 +311,7 @@ std::pair<double, type> Best_Arg(bool (*cmp)(type, type), type (*op)(double), do
 
     //需要注意这里的op不能据有后效性，即不能因为op调用改变下一次调用的值
 
-    srand(time(NULL)); //?是否需要呢
+    //srand(time(NULL)); //?是否需要呢
     double T = T0, old_arg = (max_arg + min_arg) / 2, len = max_arg - min_arg;
     type E = op(old_arg);
     std::pair<double, type> ans = std::make_pair(old_arg, E);
@@ -341,6 +341,51 @@ std::pair<double, type> Best_Arg(bool (*cmp)(type, type), type (*op)(double), do
         double new_arg = old_arg + T * len * (std::rand() * 2 - RAND_MAX) / RAND_MAX; //这里需要保证落到一定范围内
         std::pair<double, type> new_ = std::make_pair(new_arg, op(new_arg));
         if (cmp(new_.second, ans.second))
+            ans = new_;
+    }
+    return ans;
+}
+
+std::pair<double, double> Best_Arg(double (*op)(double), double max_arg, double min_arg)
+{
+    static const double Delta = 0.98;
+    static const double T0 = 1.0, Tt = 1e-10;
+    //这里需要再卡一下范围,例如直线与椭圆相交之类的要求，并且在这个界当中运算
+    //对于跨越无穷这种神奇的情况我们可以采取将椭圆旋转90的方式来进行，此时k不会到无穷，而且点本身有限不可能到无穷
+    //或许采取随机取点会比直接用k要好？
+
+    //需要注意这里的op不能据有后效性，即不能因为op调用改变下一次调用的值
+
+    //srand(time(NULL)); //?是否需要呢
+    double T = T0, old_arg = (max_arg + min_arg) / 2, len = max_arg - min_arg;
+    double E = op(old_arg);
+    std::pair<double, double> ans = std::make_pair(old_arg, E);
+    if (eq(len, 0))
+        return ans;
+    while (T >= Tt)
+    {
+        double new_arg = old_arg + T * len * (std::rand() * 2 - RAND_MAX) / RAND_MAX; //这里需要保证落到一定范围内
+        if (new_arg > max_arg)
+            new_arg = max_arg;
+        else if (new_arg < min_arg)
+            new_arg = min_arg;
+        std::pair<double, double> new_ = std::make_pair(new_arg, op(new_arg));
+        //printf("%lf ",l.get_k());
+        if (new_.second > ans.second)
+            ans = new_;
+        if (new_.second > E || std::exp(-abs(new_.second - E) / T) > std::rand() / RAND_MAX) //
+        {
+            E = new_.second;
+            old_arg = new_arg;
+        }
+        T *= Delta;
+    }
+    int steps = 10000;
+    while (steps--)
+    {
+        double new_arg = old_arg + T * len * (std::rand() * 2 - RAND_MAX) / RAND_MAX; //这里需要保证落到一定范围内
+        std::pair<double, double> new_ = std::make_pair(new_arg, op(new_arg));
+        if (new_.second > ans.second)
             ans = new_;
     }
     return ans;
