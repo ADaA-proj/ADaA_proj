@@ -303,7 +303,7 @@ std::pair<Point, Point> Common_Point(const Line &l, const Ellipse &e)
 template <class type>
 std::pair<double, type> Best_Arg(bool (*cmp)(type, type), type (*op)(double), double max_arg, double min_arg)
 {
-    static const double Delta = 0.98;
+    static const double Delta = 0.998;
     static const double T0 = 1.0, Tt = 1e-10;
     //这里需要再卡一下范围,例如直线与椭圆相交之类的要求，并且在这个界当中运算
     //对于跨越无穷这种神奇的情况我们可以采取将椭圆旋转90的方式来进行，此时k不会到无穷，而且点本身有限不可能到无穷
@@ -348,7 +348,7 @@ std::pair<double, type> Best_Arg(bool (*cmp)(type, type), type (*op)(double), do
 
 std::pair<double, double> Best_Arg(double (*op)(double), double max_arg, double min_arg)
 {
-    static const double Delta = 0.98;
+    static const double Delta = 0.998;
     static const double T0 = 1.0, Tt = 1e-10;
     //这里需要再卡一下范围,例如直线与椭圆相交之类的要求，并且在这个界当中运算
     //对于跨越无穷这种神奇的情况我们可以采取将椭圆旋转90的方式来进行，此时k不会到无穷，而且点本身有限不可能到无穷
