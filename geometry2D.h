@@ -4,8 +4,8 @@
 #include <vector>
 #include <cstdlib>
 
-typedef std::pair<double, double> P;
-typedef double (*func_t)(Line, Ellipse);
+//typedef std::pair<double, double> P;
+//typedef double (*func_t)(Line, Ellipse);
 
 const double Delta = 0.98;
 const double T0=1.0,Tt=1e-10;
@@ -28,4 +28,6 @@ Polygon Merge(const Polygon &a, const Polygon &b);
 double MinDistance(const Polygon &a, const Polygon &b); // checking
 
 std::pair<Point, Point> Common_Point(const Line &l, const Ellipse &e);
-P Best_Arg(bool (*cmp)(double,double), func_t op, Line_with_args l, Ellipse e);
+
+template<class T>
+std::pair<double, T> Best_Arg(bool (*cmp)(T, T), T (*op)(double k), double max_arg, double min_arg);
