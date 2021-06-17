@@ -7,9 +7,6 @@
 //typedef std::pair<double, double> P;
 //typedef double (*func_t)(Line, Ellipse);
 
-const double Delta = 0.98;
-const double T0=1.0,Tt=1e-10;
-
 double cross(Vec p, Vec q);
 double degree(Point p, Point q); //两点表示向量的有向角度
 
@@ -17,7 +14,7 @@ double degree(Point p, Point q); //两点表示向量的有向角度
 double Distance(Point p, const Line &l, int norm = 2);
 double Distance(Point p, Point q);
 double Distance(Point p, LineSegment l);
-double Distance(std::pair<Point,Point>);
+double Distance(std::pair<Point, Point>);
 
 Point Common_point(const Line &a, const Line &b);
 
@@ -29,5 +26,5 @@ double MinDistance(const Polygon &a, const Polygon &b); // checking
 
 std::pair<Point, Point> Common_Point(const Line &l, const Ellipse &e);
 
-template<class T>
-std::pair<double, T> Best_Arg(bool (*cmp)(T, T), T (*op)(double k), double max_arg, double min_arg);
+template <class type>
+std::pair<double, type> Best_Arg(bool (*cmp)(type, type), type (*op)(double), double max_arg, double min_arg);

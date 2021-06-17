@@ -4,12 +4,10 @@
 #include <cstdio>
 #include <cmath>
 #include <algorithm>
-#include <iostream>
-
 
 #define GEO_INF 1.0 / 0.0
 #define PI 3.1415926535898
-const double Nan=std::sqrt(-1);
+const double Nan = std::sqrt(-1);
 
 class Point //also vector
 {
@@ -60,11 +58,12 @@ protected:
 class Line_with_args : public Line
 {
 protected:
-    std::vector<double*> args;
+    std::vector<double *> args;
+
 public:
     Line_with_args(Point a);
     Line_with_args(double k_);
-    size_t arg_size()const;
+    size_t arg_size() const;
     void set_args(const std::vector<double> &v);
     void set_args(double arg);
 };
@@ -178,7 +177,6 @@ public:
     Ellipse(Point center_, Vec long_axis_, Vec short_axis_);
     double operator()(Point p) const;
     std::pair<double, double> operator()(double x_) const;
-    std::pair<Point, Point> operator()(Line l) const;
     std::pair<Point, Point> Line_intersection_for_stardard(Line l) const;
     std::pair<double, double> operator[](double y_) const;
 };
