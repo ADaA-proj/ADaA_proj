@@ -550,7 +550,7 @@ double Ellipse::operator()(Point p) const
 std::pair<double, double> Ellipse::operator()(double x_) const
 {
     x_ -= center.x;
-    double a1 = pow(long_axis.x / a, 2) + pow(long_axis.y / b, 2);
+    double a1 = pow(long_axis.y / a, 2) + pow(long_axis.x / b, 2);
     double delta = a1 - pow(x_ / a / b, 2);
     if (delta < 0)
         return std::make_pair(GEO_INF, GEO_INF);
@@ -561,7 +561,7 @@ std::pair<double, double> Ellipse::operator()(double x_) const
 std::pair<double, double> Ellipse::operator[](double y_) const
 {
     y_ -= center.y;
-    double a1 = pow(long_axis.y / a, 2) + pow(long_axis.x / b, 2);
+    double a1 = pow(long_axis.x / a, 2) + pow(long_axis.y / b, 2);
     double delta = a1 - pow(y_ / a / b, 2);
     if (delta < 0)
         return std::make_pair(GEO_INF, GEO_INF);
