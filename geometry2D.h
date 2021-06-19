@@ -24,7 +24,4 @@ Polygon HalfPlaneIntersection(std::vector<HalfPlane> Line_list);
 double MinDistance(const Polygon &a, const Polygon &b); // checking
 
 std::pair<Point, Point> Common_Point(const Line &l, const Ellipse &e);
-
-template <class type>
-std::pair<double, type> Best_Arg(bool (*cmp)(type, type), type (*op)(double), double max_arg, double min_arg);
 std::pair<double, double> Best_Arg(double (*op)(double), double max_arg, double min_arg);
