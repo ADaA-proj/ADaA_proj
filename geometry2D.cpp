@@ -23,11 +23,13 @@ double degree(Point p, Point q)
     return atan2(p.y, p.x) - atan2(q.y, q.x);
 }
 
-Polygon ConvexHall(std::vector<Point> point_list) // Graham scan O(nlogn)//用传输polygon得引用的方法来避免传输vector？
+Polygon ConvexHall(std::vector<Point> point_list) // Graham scan O(nlogn)
 {
     size_t len = point_list.size();
     if (len < 3)
-        exit(1);
+    {
+        throw "too few points to form a Polygon!";
+    }
 
     auto cmp1 = [](Point &a, Point &b)
     { return (a.y == b.y) ? (a.x < b.x) : (a.y < b.y); };
@@ -155,13 +157,11 @@ static bool checkfront(std::deque<HalfPlane> &deq, HalfPlane hp)
     HalfPlane front2 = *it;
     return cross(Point(hp), Common_point(front1, front2)) < eps;
 }
-Polygon HalfPlaneIntersection(std::vector<HalfPlane> Line_list) //未完成检验
+Polygon HalfPlaneIntersection(std::vector<HalfPlane> Line_list) 
 {
     if (Line_list.size() < 3)
     {
-        throw "error";
-        //错误处理？
-        //定义一个“空”的宏变量？
+        throw "too few halfplane for intersection!";
     }
     auto cmp = [](const HalfPlane &a, const HalfPlane &b)
     {
@@ -192,7 +192,7 @@ Polygon HalfPlaneIntersection(std::vector<HalfPlane> Line_list) //未完成检�
         deq.pop_front();
     if (deq.size() < 3)
     {
-        throw "error!";
+        throw "Halfplane can't form a polygon!";
     }
     return Polygon(std::vector<Line>(deq.begin(), deq.end()));
 }
@@ -201,8 +201,7 @@ double MinDistance(const Polygon &a, const Polygon &b)
 {
     if (a.size() < 3 || b.size() < 3)
     {
-        throw "error!";
-        exit(-1);
+        throw "too few points for Polygon";
     }
     double ans = GEO_INF;
     for (int i = 0, siz = a.size(); i < siz; ++i)
@@ -255,9 +254,7 @@ std::pair<Point, Point> Common_Point(const Line &l, const Ellipse &e)
 //     }
 //     else if(l.arg_size() == 1)
 //     {
-//         //这里需要再卡一下范围,例如直线与椭圆相交之类的要求，并且在这个界当中运算
 //         //对于跨越无穷这种神奇的情况我们可以采取将椭圆旋转90的方式来进行，此时k不会到无穷，而且点本身有限不可能到无穷
-//         //或许采取随机取点会比直接用k要好？
 //         l.set_args(0);
 
 //         double E = op(l, e);
@@ -288,7 +285,7 @@ std::pair<Point, Point> Common_Point(const Line &l, const Ellipse &e)
 //         int steps = 100;
 //         while(steps--)
 //         {
-//             double new_args = old_args + T * (std::rand() * 2 - RAND_MAX); //这里需要保证落到一定范围内
+//             double new_args = old_args + T * (std::rand() * 2 - RAND_MAX); 
 //             P new_ = std::make_pair(new_args, op(l, e));
 //             if(cmp(new_.second, ans.second))
 //             {
@@ -300,63 +297,11 @@ std::pair<Point, Point> Common_Point(const Line &l, const Ellipse &e)
 //     return std::make_pair(0,0);
 // }
 
-template <class type>
-std::pair<double, type> Best_Arg(bool (*cmp)(type, type), type (*op)(double), double max_arg, double min_arg)
-{
-    static const double Delta = 0.998;
-    static const double T0 = 1.0, Tt = 1e-10;
-    //这里需要再卡一下范围,例如直线与椭圆相交之类的要求，并且在这个界当中运算
-    //对于跨越无穷这种神奇的情况我们可以采取将椭圆旋转90的方式来进行，此时k不会到无穷，而且点本身有限不可能到无穷
-    //或许采取随机取点会比直接用k要好？
-
-    //需要注意这里的op不能据有后效性，即不能因为op调用改变下一次调用的值
-
-    //srand(time(NULL)); //?是否需要呢
-    double T = T0, old_arg = (max_arg + min_arg) / 2, len = max_arg - min_arg;
-    type E = op(old_arg);
-    std::pair<double, type> ans = std::make_pair(old_arg, E);
-    if (eq(len, 0))
-        return ans;
-    while (T >= Tt)
-    {
-        double new_arg = old_arg + T * len * (std::rand() * 2 - RAND_MAX) / RAND_MAX; //这里需要保证落到一定范围内
-        if (new_arg > max_arg)
-            new_arg = max_arg;
-        else if (new_arg < min_arg)
-            new_arg = min_arg;
-        std::pair<double, type> new_ = std::make_pair(new_arg, op(new_arg));
-        //printf("%lf ",l.get_k());
-        if (cmp(new_.second, ans.second))
-            ans = new_;
-        if (cmp(new_.second, E) || std::exp((new_.second - E) / T) > std::rand() / RAND_MAX) //
-        {
-            E = new_.second;
-            old_arg = new_arg;
-        }
-        T *= Delta;
-    }
-    int steps = 100;
-    while (steps--)
-    {
-        double new_arg = old_arg + T * len * (std::rand() * 2 - RAND_MAX) / RAND_MAX; //这里需要保证落到一定范围内
-        std::pair<double, type> new_ = std::make_pair(new_arg, op(new_arg));
-        if (cmp(new_.second, ans.second))
-            ans = new_;
-    }
-    return ans;
-}
-
 std::pair<double, double> Best_Arg(double (*op)(double), double max_arg, double min_arg)
 {
     static const double Delta = 0.998;
     static const double T0 = 1.0, Tt = 1e-10;
-    //这里需要再卡一下范围,例如直线与椭圆相交之类的要求，并且在这个界当中运算
-    //对于跨越无穷这种神奇的情况我们可以采取将椭圆旋转90的方式来进行，此时k不会到无穷，而且点本身有限不可能到无穷
-    //或许采取随机取点会比直接用k要好？
-
-    //需要注意这里的op不能据有后效性，即不能因为op调用改变下一次调用的值
-
-    //srand(time(NULL)); //?是否需要呢
+    
     double T = T0, old_arg = (max_arg + min_arg) / 2, len = max_arg - min_arg;
     double E = op(old_arg);
     std::pair<double, double> ans = std::make_pair(old_arg, E);
@@ -373,7 +318,7 @@ std::pair<double, double> Best_Arg(double (*op)(double), double max_arg, double 
         //printf("%lf ",l.get_k());
         if (new_.second > ans.second)
             ans = new_;
-        if (new_.second > E || std::exp(-abs(new_.second - E) / T) > std::rand() / RAND_MAX) //
+        if (new_.second > E || std::exp(-abs(new_.second - E) / T) > std::rand() / RAND_MAX)
         {
             E = new_.second;
             old_arg = new_arg;
@@ -383,7 +328,11 @@ std::pair<double, double> Best_Arg(double (*op)(double), double max_arg, double 
     int steps = 10000;
     while (steps--)
     {
-        double new_arg = old_arg + T * len * (std::rand() * 2 - RAND_MAX) / RAND_MAX; //这里需要保证落到一定范围内
+        double new_arg = old_arg + T * len * (std::rand() * 2 - RAND_MAX) / RAND_MAX; 
+        if (new_arg > max_arg)
+            new_arg = max_arg;
+        else if (new_arg < min_arg)
+            new_arg = min_arg;
         std::pair<double, double> new_ = std::make_pair(new_arg, op(new_arg));
         if (new_.second > ans.second)
             ans = new_;
