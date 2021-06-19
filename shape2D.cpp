@@ -50,7 +50,7 @@ Point &Point::normalization()
     x /= l, y /= l;
     return *this;
 }
-void Point::translation(Vec delta) //这里的vec好像有点问题
+void Point::translation(Vec delta) 
 {
     (*this) = (*this) + delta;
 }
@@ -407,7 +407,7 @@ double Polygon::perimeter() const
     ans += Distance(p_list[0], p_list[p_list.size() - 1]);
     return ans;
 }
-bool Polygon::in_Poly(Point a) const //用atan2实现？用向量乘法实现？（暂定前者）
+bool Polygon::in_Poly(Point a) const 
 {
     double ans = 0;
     if (p_list.size() <= 1)
