@@ -36,7 +36,7 @@ class Line
 
 public:
     Line();
-    Line(double interceptx_or_k, double intercepty_or_b, bool use_kb = 0); 
+    Line(double interceptx_or_k, double intercepty_or_b, bool use_kb = 0);
     Line(Point a, Point b);
     operator Vec() const;
     double operator()(const double &x) const;
@@ -187,16 +187,4 @@ public:
     Circle() {}
     Circle(double r_);
     Circle(Point center_, double r_);
-};
-
-class Parabola : public ConicSection
-{
-public:
-};
-
-class Hyperbola : public ConicSection
-{
-    double p;
-
-public:
 };

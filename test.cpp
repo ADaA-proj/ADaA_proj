@@ -2,7 +2,7 @@
 #include <iostream>
 using namespace std;
 
-Ellipse e = Ellipse(5, 4);
+Ellipse e = Ellipse(88, 65);
 double f(double theta)
 {
     Line l;

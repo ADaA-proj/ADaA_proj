@@ -15,8 +15,6 @@ The term project of the Algorithm Design and Analysis by HZX and ZMT.
   - Conic_Section
     - Ellipse
       - Circle
-    - Hyperbola
-    - Parabola
 
 ## Built-in Function
 - Perimeter

@@ -157,7 +157,7 @@ static bool checkfront(std::deque<HalfPlane> &deq, HalfPlane hp)
     HalfPlane front2 = *it;
     return cross(Point(hp), Common_point(front1, front2)) < eps;
 }
-Polygon HalfPlaneIntersection(std::vector<HalfPlane> Line_list) 
+Polygon HalfPlaneIntersection(std::vector<HalfPlane> Line_list)
 {
     if (Line_list.size() < 3)
     {
@@ -285,7 +285,7 @@ std::pair<Point, Point> Common_Point(const Line &l, const Ellipse &e)
 //         int steps = 100;
 //         while(steps--)
 //         {
-//             double new_args = old_args + T * (std::rand() * 2 - RAND_MAX); 
+//             double new_args = old_args + T * (std::rand() * 2 - RAND_MAX);
 //             P new_ = std::make_pair(new_args, op(l, e));
 //             if(cmp(new_.second, ans.second))
 //             {
@@ -299,9 +299,9 @@ std::pair<Point, Point> Common_Point(const Line &l, const Ellipse &e)
 
 std::pair<double, double> Best_Arg(double (*op)(double), double max_arg, double min_arg)
 {
-    static const double Delta = 0.998;
+    static const double Delta = 0.999;
     static const double T0 = 1.0, Tt = 1e-10;
-    
+
     double T = T0, old_arg = (max_arg + min_arg) / 2, len = max_arg - min_arg;
     double E = op(old_arg);
     std::pair<double, double> ans = std::make_pair(old_arg, E);
@@ -328,7 +328,7 @@ std::pair<double, double> Best_Arg(double (*op)(double), double max_arg, double 
     int steps = 10000;
     while (steps--)
     {
-        double new_arg = old_arg + T * len * (std::rand() * 2 - RAND_MAX) / RAND_MAX; 
+        double new_arg = old_arg + T * len * (std::rand() * 2 - RAND_MAX) / RAND_MAX;
         if (new_arg > max_arg)
             new_arg = max_arg;
         else if (new_arg < min_arg)
