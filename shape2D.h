@@ -36,7 +36,7 @@ class Line
 
 public:
     Line();
-    Line(double interceptx_or_k, double intercepty_or_b, bool use_kb = 0); //这里的默认参数和实现的时候的默认参数貌似不能同时使用
+    Line(double interceptx_or_k, double intercepty_or_b, bool use_kb = 0); 
     Line(Point a, Point b);
     operator Vec() const;
     double operator()(const double &x) const;
